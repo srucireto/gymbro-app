@@ -29,10 +29,12 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
         return 'bg-yellow-100 border-yellow-300 text-yellow-900'
       case 'descanso':
         return 'bg-gray-100 border-gray-300 text-gray-600'
+      case 'gym_cerrado':
+        return 'bg-gray-200 border-gray-400 text-gray-700'
     }
   }
 
-  const getTipoLabel = (entrada: EntradaCalendario) => {
+  const getTipoLabel = (entrada: EntradaCalendario, dia: DiaSemana) => {
     switch (entrada.tipo) {
       case 'gym':
         return getSesionNombre(entrada.sesion_id) || 'Gym'
@@ -42,6 +44,8 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
         return 'Futsal'
       case 'descanso':
         return 'Descanso'
+      case 'gym_cerrado':
+        return 'Gym cerrado'
     }
   }
 
@@ -66,7 +70,7 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
                   {dia}
                 </div>
                 <div className="font-bold">
-                  {getTipoLabel(entrada)}
+                  {getTipoLabel(entrada, dia)}
                 </div>
                 {entrada.estado === 'liviana' && (
                   <div className="text-xs mt-1 opacity-75">

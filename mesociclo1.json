@@ -1,0 +1,388 @@
+{
+  "nombre": "Mesociclo 1 — Base",
+  "fecha_inicio": "2026-05-19",
+  "semanas_duracion": 6,
+  "sesiones": [
+    {
+      "nombre": "Pull A",
+      "tipo": "pull",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 96,
+      "es_post_partido": false,
+      "orden": 1,
+      "ejercicios": [
+        {
+          "nombre": "Dominadas pronas con peso",
+          "grupo_muscular": "Dorsal ancho",
+          "series": 4,
+          "reps_target": "6-8",
+          "rir_target": "1-2",
+          "orden": 1
+        },
+        {
+          "nombre": "RDL con mancuernas",
+          "grupo_muscular": "Isquios + Glúteo",
+          "series": 4,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "nota_ajuste": "Con mancuernas (no barra) — reduce torque lumbar",
+          "youtube_search": "RDL mancuernas lumbar seguro",
+          "orden": 2
+        },
+        {
+          "nombre": "Chest-supported row",
+          "grupo_muscular": "Espalda media + dorsal",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "nota_ajuste": "Sin estabilización lumbar — protege la espalda baja",
+          "youtube_search": "chest supported row",
+          "orden": 3
+        },
+        {
+          "nombre": "Curl de pierna sentado",
+          "grupo_muscular": "Isquios",
+          "series": 4,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "youtube_search": "leg curl sentado",
+          "orden": 4
+        },
+        {
+          "nombre": "Curl predicador",
+          "grupo_muscular": "Bíceps distal",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "notas": "Especialmente efectivo por tu morfología de bíceps cortos. Tensión alta en zona distal.",
+          "nota_ajuste": "Si sentís pinzazo en el tendón cerca del codo: no completar el ROM al fondo absoluto, parar 5° antes",
+          "youtube_search": "curl predicador barra Z",
+          "orden": 5
+        },
+        {
+          "nombre": "Pullover con cable",
+          "grupo_muscular": "Dorsal ancho",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0-1",
+          "nota_ajuste": "Sentado o de rodillas (no de pie) — protege lumbar",
+          "youtube_search": "cable pullover sentado",
+          "orden": 6
+        },
+        {
+          "nombre": "Face pull en polea alta",
+          "grupo_muscular": "Hombro posterior + rotadores",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": "0",
+          "youtube_search": "face pull polea alta",
+          "orden": 7
+        },
+        {
+          "nombre": "Hip thrust con barra",
+          "grupo_muscular": "Glúteo mayor",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "youtube_search": "hip thrust barra tecnica",
+          "orden": 8
+        },
+        {
+          "nombre": "Curl martillo",
+          "grupo_muscular": "Braquial + braquiorradial",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "youtube_search": "hammer curl mancuernas",
+          "orden": 9
+        }
+      ]
+    },
+    {
+      "nombre": "Push A",
+      "tipo": "push",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 2,
+      "ejercicios": [
+        {
+          "nombre": "Press de banca plano con barra",
+          "grupo_muscular": "Pecho general",
+          "series": 4,
+          "reps_target": "5-7",
+          "rir_target": "1-2",
+          "youtube_search": "bench press tecnica",
+          "orden": 1
+        },
+        {
+          "nombre": "Sentadilla hack",
+          "grupo_muscular": "Cuádriceps + Glúteo",
+          "series": 4,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "nota_ajuste": "Hack squat es ideal para tibias cortas — riel fijo corrige la inclinación de torso. Cero compresión axial lumbar.",
+          "youtube_search": "hack squat máquina",
+          "orden": 2
+        },
+        {
+          "nombre": "Press inclinado con mancuernas (30°)",
+          "grupo_muscular": "Pecho clavicular",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "youtube_search": "incline dumbbell press 30 grados",
+          "orden": 3
+        },
+        {
+          "nombre": "Press militar sentado con mancuernas",
+          "grupo_muscular": "Hombro anterior",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "1",
+          "nota_ajuste": "Sentado con mancuernas (no de pie con barra) — protege lumbar",
+          "youtube_search": "shoulder press sentado mancuernas",
+          "orden": 4
+        },
+        {
+          "nombre": "Extensión de pierna",
+          "grupo_muscular": "Cuádriceps (rectus femoris)",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "youtube_search": "leg extension",
+          "orden": 5
+        },
+        {
+          "nombre": "Cruce de poleas alto-a-bajo",
+          "grupo_muscular": "Pecho inferior",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0-1",
+          "youtube_search": "cable crossover alto a bajo",
+          "orden": 6
+        },
+        {
+          "nombre": "Extensión tríceps overhead con cable",
+          "grupo_muscular": "Tríceps cabeza larga",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "nota_ajuste": "Sentado con respaldo — protege lumbar",
+          "youtube_search": "overhead tricep extension cable sentado",
+          "orden": 7
+        },
+        {
+          "nombre": "Elevación lateral con mancuernas",
+          "grupo_muscular": "Hombro lateral",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0",
+          "youtube_search": "lateral raise mancuernas",
+          "orden": 8
+        },
+        {
+          "nombre": "Pantorrilla de pie",
+          "grupo_muscular": "Pantorrilla (gastrocnemio)",
+          "series": 4,
+          "reps_target": "8-12",
+          "rir_target": "0-1",
+          "youtube_search": "calf raise de pie",
+          "orden": 9
+        }
+      ]
+    },
+    {
+      "nombre": "Pull B",
+      "tipo": "pull",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 24,
+      "es_post_partido": false,
+      "orden": 3,
+      "ejercicios": [
+        {
+          "nombre": "Jalón al pecho agarre ancho pronado",
+          "grupo_muscular": "Dorsal ancho",
+          "series": 4,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "youtube_search": "lat pulldown ancho pronado",
+          "orden": 1
+        },
+        {
+          "nombre": "Remo sentado en polea agarre neutro",
+          "grupo_muscular": "Trapecio medio + romboides",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "1",
+          "youtube_search": "seated cable row agarre neutro",
+          "orden": 2
+        },
+        {
+          "nombre": "Remo mancuerna a una mano",
+          "grupo_muscular": "Dorsal unilateral",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "notas": "Apoyo en banco para estabilización",
+          "youtube_search": "one arm dumbbell row",
+          "orden": 3
+        },
+        {
+          "nombre": "Step-up con mancuernas",
+          "grupo_muscular": "Glúteo mayor",
+          "series": 3,
+          "reps_target": "8-10/pierna",
+          "rir_target": "2-3",
+          "notas": "Intensidad de mantenimiento (RIR 2-3). Pre-partido.",
+          "nota_ajuste": "Banco a la altura de la rodilla o por debajo (no por encima) — por tibias cortas",
+          "youtube_search": "step up mancuernas",
+          "orden": 4
+        },
+        {
+          "nombre": "Curl de pierna sentado (LIVIANO)",
+          "grupo_muscular": "Isquios",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "2-3",
+          "notas": "Intensidad de mantenimiento (RIR 2-3). Pre-partido.",
+          "youtube_search": "leg curl sentado",
+          "orden": 5
+        },
+        {
+          "nombre": "Curl bayesiano en cable",
+          "grupo_muscular": "Bíceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0-1",
+          "youtube_search": "bayesian cable curl",
+          "orden": 6
+        },
+        {
+          "nombre": "Rear delt fly",
+          "grupo_muscular": "Hombro posterior",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0-1",
+          "youtube_search": "rear delt fly máquina cable",
+          "orden": 7
+        },
+        {
+          "nombre": "Y-raise en prono",
+          "grupo_muscular": "Trapecio inferior",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0",
+          "notas": "En banco inclinado",
+          "youtube_search": "prone Y raise banco inclinado",
+          "orden": 8
+        },
+        {
+          "nombre": "Roll-out abdominal con rueda",
+          "grupo_muscular": "Recto abdominal",
+          "series": 3,
+          "reps_target": "8-12",
+          "rir_target": "0-1",
+          "nota_ajuste": "Mantener core muy tenso. Alternativa más segura: dead bug o plancha",
+          "youtube_search": "ab wheel rollout",
+          "orden": 9
+        }
+      ]
+    },
+    {
+      "nombre": "Push B",
+      "tipo": "push",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 0,
+      "es_post_partido": true,
+      "orden": 4,
+      "ejercicios": [
+        {
+          "nombre": "Press inclinado con barra (30°)",
+          "grupo_muscular": "Pecho clavicular",
+          "series": 4,
+          "reps_target": "6-8",
+          "rir_target": "1-2",
+          "youtube_search": "incline barbell press 30 grados",
+          "orden": 1
+        },
+        {
+          "nombre": "Press plano con mancuernas",
+          "grupo_muscular": "Pecho general",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "youtube_search": "flat dumbbell press",
+          "orden": 2
+        },
+        {
+          "nombre": "Press militar sentado con mancuernas",
+          "grupo_muscular": "Hombro anterior",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "1-2",
+          "nota_ajuste": "Sentado con mancuernas (no de pie con barra) — protege lumbar",
+          "youtube_search": "shoulder press sentado mancuernas",
+          "orden": 3
+        },
+        {
+          "nombre": "Extensión de pierna (post-partido)",
+          "grupo_muscular": "Cuádriceps",
+          "series": 4,
+          "reps_target": "10-12",
+          "rir_target": "1-2",
+          "notas": "Cuádriceps controlado post-partido. Sin hack squat hoy.",
+          "youtube_search": "leg extension",
+          "orden": 4
+        },
+        {
+          "nombre": "Aperturas con mancuernas banco inclinado",
+          "grupo_muscular": "Pecho estiramiento",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "youtube_search": "incline dumbbell fly",
+          "orden": 5
+        },
+        {
+          "nombre": "Extensión overhead mancuerna",
+          "grupo_muscular": "Tríceps cabeza larga",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "0-1",
+          "nota_ajuste": "Sentado con respaldo — protege lumbar",
+          "youtube_search": "overhead tricep extension mancuerna sentado",
+          "orden": 6
+        },
+        {
+          "nombre": "Elevación lateral en cable",
+          "grupo_muscular": "Hombro lateral",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "0",
+          "youtube_search": "cable lateral raise",
+          "orden": 7
+        },
+        {
+          "nombre": "Hip thrust con barra (LIVIANO)",
+          "grupo_muscular": "Glúteo mayor",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "2-3",
+          "notas": "Opcional. Intensidad de mantenimiento.",
+          "youtube_search": "hip thrust barra",
+          "orden": 8
+        },
+        {
+          "nombre": "Pantorrilla de pie (LIVIANO)",
+          "grupo_muscular": "Pantorrilla",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "1-2",
+          "youtube_search": "calf raise de pie",
+          "orden": 9
+        }
+      ]
+    }
+  ]
+}

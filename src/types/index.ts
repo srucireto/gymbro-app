@@ -40,7 +40,7 @@ export interface Ejercicio {
 }
 
 export interface EntradaCalendario {
-  tipo: "gym" | "futsal_entreno" | "partido" | "descanso"
+  tipo: "gym" | "futsal_entreno" | "partido" | "descanso" | "gym_cerrado"
   sesion_id?: string
   estado?: "normal" | "liviana" | "pospuesta"
   advertencia?: string
