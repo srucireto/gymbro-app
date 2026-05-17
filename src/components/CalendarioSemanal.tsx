@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import type { DiaSemana, EntradaCalendario, Sesion } from '@/types'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 const DIAS: DiaSemana[] = [
   "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"
@@ -19,18 +22,17 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
     return sesion?.nombre || 'Sesión'
   }
 
-  const getTipoColor = (tipo: EntradaCalendario['tipo']) => {
+  const getTipoVariant = (tipo: EntradaCalendario['tipo']): "default" | "secondary" | "destructive" | "outline" => {
     switch (tipo) {
       case 'gym':
-        return 'bg-blue-100 border-blue-300 text-blue-900'
+        return 'default'
       case 'partido':
-        return 'bg-red-100 border-red-300 text-red-900'
+        return 'destructive'
       case 'futsal_entreno':
-        return 'bg-yellow-100 border-yellow-300 text-yellow-900'
+        return 'secondary'
       case 'descanso':
-        return 'bg-gray-100 border-gray-300 text-gray-600'
       case 'gym_cerrado':
-        return 'bg-gray-200 border-gray-400 text-gray-700'
+        return 'outline'
     }
   }
 
@@ -50,47 +52,53 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {DIAS.map((dia) => {
         const entrada = calendario[dia]
         const esGym = entrada.tipo === 'gym'
-        
+
         return (
-          <button
+          <Card
             key={dia}
-            onClick={() => esGym && entrada.sesion_id && navigate(`/sesion/${entrada.sesion_id}`)}
-            disabled={!esGym}
-            className={`w-full p-4 border-2 rounded-lg text-left transition ${
-              getTipoColor(entrada.tipo)
-            } ${esGym ? 'hover:scale-[1.02] active:scale-[0.98]' : ''}`}
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="text-xs font-semibold uppercase tracking-wide mb-1">
-                  {dia}
-                </div>
-                <div className="font-bold">
-                  {getTipoLabel(entrada)}
-                </div>
-                {entrada.estado === 'liviana' && (
-                  <div className="text-xs mt-1 opacity-75">
-                    Versión liviana
-                  </div>
-                )}
-                {entrada.estado === 'pospuesta' && (
-                  <div className="text-xs mt-1 opacity-75">
-                    Pospuesta
-                  </div>
-                )}
-              </div>
-              {esGym && <div className="text-lg">→</div>}
-            </div>
-            {entrada.advertencia && (
-              <div className="text-xs mt-2 opacity-75 leading-tight">
-                ⚠️ {entrada.advertencia}
-              </div>
+            className={cn(
+              "transition-all",
+              esGym && "cursor-pointer hover:shadow-md active:scale-[0.98]"
             )}
-          </button>
+            onClick={() => esGym && entrada.sesion_id && navigate(`/sesion/${entrada.sesion_id}`)}
+          >
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {dia}
+                    </span>
+                    <Badge variant={getTipoVariant(entrada.tipo)} className="text-xs">
+                      {getTipoLabel(entrada)}
+                    </Badge>
+                  </div>
+                  {entrada.estado === 'liviana' && (
+                    <Badge variant="secondary" className="text-xs">
+                      Versión liviana
+                    </Badge>
+                  )}
+                  {entrada.estado === 'pospuesta' && (
+                    <Badge variant="outline" className="text-xs">
+                      Pospuesta
+                    </Badge>
+                  )}
+                  {entrada.advertencia && (
+                    <p className="text-xs text-muted-foreground leading-tight">
+                      ⚠️ {entrada.advertencia}
+                    </p>
+                  )}
+                </div>
+                {esGym && (
+                  <div className="text-lg text-muted-foreground">→</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )
       })}
     </div>

@@ -5,6 +5,9 @@ import { generarCalendario, DIAS_PARTIDO, DIAS_FUTSAL_ENTRENO } from '@/lib/sche
 import CalendarioSemanal from '@/components/CalendarioSemanal'
 import type { DiaSemana } from '@/types'
 import { supabase } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function HomePage() {
   const { rutina, sesiones, loading: loadingRutina } = useRutinaActiva()
@@ -95,20 +98,19 @@ export default function HomePage() {
 
   if (!rutina) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">GymBro</h1>
-          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-4">
-            <p className="text-yellow-900 mb-4">
+          <h1 className="text-2xl font-bold mb-6">GymBro</h1>
+          <Alert>
+            <AlertDescription>
               No hay ninguna rutina activa configurada.
-            </p>
-            <Link
-              to="/rutinas"
-              className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700"
-            >
+            </AlertDescription>
+          </Alert>
+          <Button asChild className="w-full mt-4">
+            <Link to="/rutinas">
               Configurar rutina
             </Link>
-          </div>
+          </Button>
         </div>
       </div>
     )
@@ -119,114 +121,122 @@ export default function HomePage() {
   const semanaDelMesociclo = semana?.semana_numero || 1
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <div className="container mx-auto px-4 py-6 max-w-md">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">GymBro</h1>
-            <p className="text-sm text-gray-600">
+            <h1 className="text-2xl font-bold">GymBro</h1>
+            <p className="text-sm text-muted-foreground">
               {rutina.nombre}
             </p>
           </div>
-          <Link
-            to="/rutinas"
-            className="text-sm text-blue-600 hover:text-blue-700"
-          >
-            Rutinas
-          </Link>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/rutinas">
+              Rutinas
+            </Link>
+          </Button>
         </div>
 
-        <div className="bg-white rounded-lg p-4 mb-6 border border-gray-200">
-          <div className="text-sm text-gray-600 mb-1">Semana del mesociclo</div>
-          <div className="text-2xl font-bold text-gray-900">
-            {semanaDelMesociclo} de {rutina.semanas_duracion}
-          </div>
+        <Card className="mb-6">
+          <CardHeader>
+            <CardDescription>Semana del mesociclo</CardDescription>
+            <CardTitle className="text-2xl">
+              {semanaDelMesociclo} de {rutina.semanas_duracion}
+            </CardTitle>
+          </CardHeader>
           {semanaDelMesociclo === 7 && (
-            <Link
-              to="/deload"
-              className="mt-3 block text-sm text-orange-600 hover:text-orange-700 font-semibold"
-            >
-              Ver instrucciones de deload →
-            </Link>
+            <CardContent>
+              <Button variant="link" asChild className="p-0 h-auto text-orange-600">
+                <Link to="/deload">
+                  Ver instrucciones de deload →
+                </Link>
+              </Button>
+            </CardContent>
           )}
-        </div>
+        </Card>
 
         {mostrarSelector ? (
-          <div className="bg-white rounded-lg p-4 mb-6 border-2 border-blue-500">
-            {paso === 1 ? (
-              <>
-                <h2 className="font-bold text-gray-900 mb-4">
-                  Paso 1: ¿Qué día es el partido esta semana?
-                </h2>
-                <p className="text-xs text-gray-500 mb-3">
+          <Card className="mb-6 border-primary">
+            <CardHeader>
+              <CardTitle>
+                {paso === 1 ? 'Paso 1: ¿Qué día es el partido esta semana?' : 'Paso 2: ¿Qué día es el entrenamiento de futsal?'}
+              </CardTitle>
+              {paso === 1 && (
+                <CardDescription>
                   Solo lunes a viernes (no hay partidos los fines de semana)
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {DIAS_PARTIDO.map((dia) => (
-                    <button
-                      key={dia}
-                      onClick={() => handleSeleccionarDiaPartido(dia)}
-                      className="py-3 px-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg font-semibold text-blue-900"
-                    >
-                      {dia.charAt(0).toUpperCase() + dia.slice(1)}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={handleCancelar}
-                  className="mt-3 w-full py-2 text-sm text-gray-600 hover:text-gray-800"
-                >
-                  Cancelar
-                </button>
-              </>
-            ) : (
-              <>
-                <h2 className="font-bold text-gray-900 mb-2">
-                  Paso 2: ¿Qué día es el entrenamiento de futsal?
-                </h2>
-                <p className="text-sm text-gray-600 mb-4">
+                </CardDescription>
+              )}
+              {paso === 2 && (
+                <CardDescription>
                   Partido: <span className="font-semibold">{diaPartidoSeleccionado}</span>
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {DIAS_FUTSAL_ENTRENO.filter(dia => dia !== diaPartidoSeleccionado).map((dia) => {
-                    const esSugerido = diaPartidoSeleccionado === "martes"
-                      ? dia === "viernes"
-                      : dia === "martes"
-
-                    return (
-                      <button
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {paso === 1 ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIAS_PARTIDO.map((dia) => (
+                      <Button
                         key={dia}
-                        onClick={() => handleConfirmarDias(dia)}
-                        disabled={guardando}
-                        className={`py-3 px-4 border-2 rounded-lg font-semibold disabled:opacity-50 ${
-                          esSugerido
-                            ? 'bg-green-50 border-green-500 text-green-900 hover:bg-green-100'
-                            : 'bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100'
-                        }`}
+                        onClick={() => handleSeleccionarDiaPartido(dia)}
+                        variant="outline"
+                        className="h-auto py-3"
                       >
                         {dia.charAt(0).toUpperCase() + dia.slice(1)}
-                        {esSugerido && <span className="text-xs block">✓ Sugerido</span>}
-                      </button>
-                    )
-                  })}
-                </div>
-                <button
-                  onClick={() => setPaso(1)}
-                  disabled={guardando}
-                  className="mt-3 w-full py-2 text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50"
-                >
-                  ← Volver
-                </button>
-              </>
-            )}
-          </div>
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={handleCancelar}
+                    variant="ghost"
+                    className="w-full"
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIAS_FUTSAL_ENTRENO.filter(dia => dia !== diaPartidoSeleccionado).map((dia) => {
+                      const esSugerido = diaPartidoSeleccionado === "martes"
+                        ? dia === "viernes"
+                        : dia === "martes"
+
+                      return (
+                        <Button
+                          key={dia}
+                          onClick={() => handleConfirmarDias(dia)}
+                          disabled={guardando}
+                          variant={esSugerido ? "default" : "outline"}
+                          className="h-auto py-3 flex flex-col"
+                        >
+                          {dia.charAt(0).toUpperCase() + dia.slice(1)}
+                          {esSugerido && <span className="text-xs">✓ Sugerido</span>}
+                        </Button>
+                      )
+                    })}
+                  </div>
+                  <Button
+                    onClick={() => setPaso(1)}
+                    disabled={guardando}
+                    variant="ghost"
+                    className="w-full"
+                  >
+                    ← Volver
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
         ) : (
-          <button
+          <Button
             onClick={() => setMostrarSelector(true)}
-            className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold mb-6 hover:bg-blue-700 active:scale-98"
+            className="w-full py-6 mb-6 text-lg"
+            size="lg"
           >
             ¿Cambió el día del partido?
-          </button>
+          </Button>
         )}
 
         <h2 className="text-lg font-bold text-gray-900 mb-3">
