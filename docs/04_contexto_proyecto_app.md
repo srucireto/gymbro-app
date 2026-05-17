@@ -32,9 +32,10 @@ La app necesita resolver: **dado el día del partido esta semana, ¿qué sesión
 | Archivo | Contenido |
 |---|---|
 | `01_rutina.md` | Rutina completa del Mesociclo 1: ejercicios, series, reps, RIR, ajustes por perfil |
-| `02_logica_semanal.md` | Los 7 escenarios por día de partido con el calendario correcto para cada uno |
+| `02_logica_semanal.md` | Lógica de scheduling semanal: dos dimensiones de restricción, algoritmo, escenarios validados |
 | `03_objetivo_sistema_dinamico.md` | Algoritmo, estructura de datos, criterios de éxito del sistema |
 | `04_contexto_proyecto_app.md` | Este documento — stack, decisiones, schema, estado del proyecto |
+| `05_logica_enfermedad.md` | Sesiones faltadas, reorganización automática y protocolo de vuelta por estado físico |
 
 ---
 
@@ -417,6 +418,7 @@ export function generarCalendario(
 | `02_logica_semanal.md` | Completo |
 | `03_objetivo_sistema_dinamico.md` | Completo |
 | `04_contexto_proyecto_app.md` | Completo |
+| `05_logica_enfermedad.md` | Completo |
 | Decisiones de stack | Completo |
 | Schema de Supabase | Definido — pendiente ejecutar |
 | Tipos TypeScript | Definidos — pendiente implementar |
@@ -426,12 +428,13 @@ export function generarCalendario(
 | F2 — Detalle de sesión | Pendiente |
 | F3 — Gestión de rutinas | Pendiente |
 | F4 — Tracking | Pendiente |
+| F5 — Lógica de enfermedad / sesiones faltadas | Pendiente |
 
 ---
 
 ## Instrucciones para Claude Code al arrancar
 
-1. Leer los 4 archivos en `/docs` antes de escribir cualquier código
+1. Leer los 5 archivos en `/docs` antes de escribir cualquier código
 2. Setup inicial: `npm create vite@latest . -- --template react-ts`
 3. Instalar: `@supabase/supabase-js react-router-dom` + el sistema de styling elegido
 4. Crear `.env.example` con `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`

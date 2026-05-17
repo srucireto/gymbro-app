@@ -39,11 +39,23 @@ export interface Ejercicio {
   orden: number
 }
 
+export type EstadoSesion =
+  | "normal"
+  | "liviana"
+  | "pospuesta"
+  | "omitida"
+  | "faltada"
+  | "recuperada"
+  | "vuelta_bien"
+  | "vuelta_regular"
+  | "vuelta_mal"
+
 export interface EntradaCalendario {
   tipo: "gym" | "futsal_entreno" | "partido" | "descanso" | "gym_cerrado"
   sesion_id?: string
-  estado?: "normal" | "liviana" | "pospuesta"
+  estado?: EstadoSesion
   advertencia?: string
+  dia_original?: DiaSemana  // Para sesiones recuperadas
 }
 
 export interface SemanaProgramada {
@@ -67,4 +79,22 @@ export interface Tracking {
   reps_s2?: number | null
   reps_s3?: number | null
   reps_s4?: number | null
+  estado_sesion?: EstadoSesion | null
+}
+
+export type CheckInEstado = "bien" | "regular" | "mal"
+
+export type DiasFuera = 1 | 2 | 3 | 4
+
+export interface Ausencia {
+  id: string
+  user_id: string
+  semana_id: string
+  sesion_id: string
+  dia_faltado: DiaSemana
+  dias_fuera: DiasFuera
+  sesion_recuperada: boolean
+  dia_recuperacion?: DiaSemana | null
+  check_in_estado?: CheckInEstado | null
+  created_at: string
 }
