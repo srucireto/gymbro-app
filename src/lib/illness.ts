@@ -70,7 +70,6 @@ export function intentarRecuperarSesion(
   sesiones: Sesion[]
 ): { recuperada: boolean; nuevoDia?: DiaSemana; advertencia?: string } {
 
-  const idxFaltado = DIAS.indexOf(diaFaltado)
   const idxHoy = DIAS.indexOf(diaFaltado)  // Asumimos que hoy es el día faltado
   const idxSabado = DIAS.indexOf("sábado")
 
