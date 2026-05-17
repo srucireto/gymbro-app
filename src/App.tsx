@@ -1,18 +1,18 @@
-import { BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import SesionDetailPage from './pages/SesionDetailPage'
+import RutinasPage from './pages/RutinasPage'
+import DeloadPage from './pages/DeloadPage'
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            GymBro
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Gestión de rutinas de hipertrofia
-          </p>
-        </div>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/sesion/:id" element={<SesionDetailPage />} />
+        <Route path="/rutinas" element={<RutinasPage />} />
+        <Route path="/deload" element={<DeloadPage />} />
+      </Routes>
     </Router>
   )
 }
