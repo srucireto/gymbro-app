@@ -10,6 +10,9 @@ export function useRutinaActiva() {
   useEffect(() => {
     async function fetchRutinaActiva() {
       console.log('[DEBUG] Iniciando fetchRutinaActiva...')
+      console.log('[DEBUG] Supabase URL:', import.meta.env.VITE_SUPABASE_URL)
+      console.log('[DEBUG] Supabase Key existe:', !!import.meta.env.VITE_SUPABASE_ANON_KEY)
+
       try {
         // Obtener rutina activa
         console.log('[DEBUG] Consultando rutinas con activa=true...')
@@ -19,8 +22,17 @@ export function useRutinaActiva() {
           .eq('activa', true)
           .single()
 
+        console.log('[DEBUG] Respuesta de query rutinas:', {
+          data: rutinaData,
+          error: rutinaError,
+          errorCode: rutinaError?.code,
+          errorMessage: rutinaError?.message,
+          errorDetails: rutinaError?.details
+        })
+
         if (rutinaError) {
           console.error('[DEBUG] Error al consultar rutina:', rutinaError)
+          alert('Error cargando rutina: ' + rutinaError.message)
           throw rutinaError
         }
 
@@ -36,8 +48,14 @@ export function useRutinaActiva() {
             .eq('rutina_id', rutinaData.id)
             .order('orden')
 
+          console.log('[DEBUG] Respuesta de query sesiones:', {
+            count: sesionesData?.length,
+            error: sesionesError
+          })
+
           if (sesionesError) {
             console.error('[DEBUG] Error al consultar sesiones:', sesionesError)
+            alert('Error cargando sesiones: ' + sesionesError.message)
             throw sesionesError
           }
           console.log('[DEBUG] Sesiones encontradas:', sesionesData?.length)
@@ -46,7 +64,9 @@ export function useRutinaActiva() {
         console.log('[DEBUG] fetchRutinaActiva completado exitosamente')
       } catch (error) {
         console.error('[DEBUG] Error en fetchRutinaActiva:', error)
+        alert('Error crítico: ' + (error instanceof Error ? error.message : String(error)))
       } finally {
+        console.log('[DEBUG] Finalizando con loading=false')
         setLoading(false)
       }
     }
@@ -54,6 +74,7 @@ export function useRutinaActiva() {
     fetchRutinaActiva()
   }, [])
 
+  console.log('[DEBUG] useRutinaActiva render - rutina:', rutina?.nombre, 'sesiones:', sesiones.length, 'loading:', loading)
   return { rutina, sesiones, loading }
 }
 
