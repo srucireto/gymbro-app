@@ -34,7 +34,7 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
     }
   }
 
-  const getTipoLabel = (entrada: EntradaCalendario, dia: DiaSemana) => {
+  const getTipoLabel = (entrada: EntradaCalendario) => {
     switch (entrada.tipo) {
       case 'gym':
         return getSesionNombre(entrada.sesion_id) || 'Gym'
@@ -70,7 +70,7 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
                   {dia}
                 </div>
                 <div className="font-bold">
-                  {getTipoLabel(entrada, dia)}
+                  {getTipoLabel(entrada)}
                 </div>
                 {entrada.estado === 'liviana' && (
                   <div className="text-xs mt-1 opacity-75">
