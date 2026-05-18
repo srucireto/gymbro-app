@@ -121,32 +121,36 @@ export default function HomePage() {
   const semanaDelMesociclo = semana?.semana_numero || 1
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-[#fafafa] pb-20">
       <div className="container mx-auto px-4 py-6 max-w-md">
-        <div className="flex justify-between items-start mb-6">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold">GymBro</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-3xl font-bold tracking-tight">GymBro</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               {rutina.nombre}
             </p>
           </div>
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link to="/rutinas">
               Rutinas
             </Link>
           </Button>
         </div>
 
+        {/* Progreso del mesociclo */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardDescription>Semana del mesociclo</CardDescription>
-            <CardTitle className="text-2xl">
-              {semanaDelMesociclo} de {rutina.semanas_duracion}
+          <CardHeader className="pb-3">
+            <CardDescription className="text-xs uppercase tracking-wide font-semibold">
+              Progreso del mesociclo
+            </CardDescription>
+            <CardTitle className="text-3xl font-bold">
+              Semana {semanaDelMesociclo} <span className="text-muted-foreground">/ {rutina.semanas_duracion}</span>
             </CardTitle>
           </CardHeader>
           {semanaDelMesociclo === 7 && (
-            <CardContent>
-              <Button variant="link" asChild className="p-0 h-auto text-orange-600">
+            <CardContent className="pt-0">
+              <Button variant="link" asChild className="p-0 h-auto text-orange-600 font-semibold">
                 <Link to="/deload">
                   Ver instrucciones de deload →
                 </Link>
@@ -155,20 +159,21 @@ export default function HomePage() {
           )}
         </Card>
 
+        {/* Selector de días */}
         {mostrarSelector ? (
-          <Card className="mb-6 border-primary">
+          <Card className="mb-6 border-2 border-primary shadow-md">
             <CardHeader>
-              <CardTitle>
-                {paso === 1 ? 'Paso 1: ¿Qué día es el partido esta semana?' : 'Paso 2: ¿Qué día es el entrenamiento de futsal?'}
+              <CardTitle className="text-xl">
+                {paso === 1 ? '¿Qué día es el partido?' : '¿Qué día es el entrenamiento?'}
               </CardTitle>
               {paso === 1 && (
                 <CardDescription>
-                  Solo lunes a viernes (no hay partidos los fines de semana)
+                  Paso 1 de 2 · Solo lunes a viernes
                 </CardDescription>
               )}
               {paso === 2 && (
                 <CardDescription>
-                  Partido: <span className="font-semibold">{diaPartidoSeleccionado}</span>
+                  Paso 2 de 2 · Partido el <span className="font-semibold">{diaPartidoSeleccionado}</span>
                 </CardDescription>
               )}
             </CardHeader>
@@ -232,18 +237,27 @@ export default function HomePage() {
         ) : (
           <Button
             onClick={() => setMostrarSelector(true)}
-            className="w-full py-6 mb-6 text-lg"
+            className="w-full py-6 mb-6 text-base font-semibold"
             size="lg"
+            variant="outline"
           >
             ¿Cambió el día del partido?
           </Button>
         )}
 
-        <h2 className="text-lg font-bold text-gray-900 mb-3">
-          Esta semana
-        </h2>
+        {/* Calendario semanal */}
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold tracking-tight">
+            Esta semana
+          </h2>
+        </div>
 
-        <CalendarioSemanal calendario={calendario} sesiones={sesiones} />
+        <CalendarioSemanal
+          calendario={calendario}
+          sesiones={sesiones}
+          semanaId={semana?.id}
+          diaPartido={semana?.dia_partido}
+        />
       </div>
     </div>
   )

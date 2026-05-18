@@ -11,10 +11,23 @@ const DIAS: DiaSemana[] = [
 interface Props {
   calendario: Record<DiaSemana, EntradaCalendario>
   sesiones: Sesion[]
+  semanaId?: string
+  diaPartido?: DiaSemana
 }
 
-export default function CalendarioSemanal({ calendario, sesiones }: Props) {
+export default function CalendarioSemanal({ calendario, sesiones, semanaId, diaPartido }: Props) {
   const navigate = useNavigate()
+
+  const handleSesionClick = (sesionId: string, dia: DiaSemana) => {
+    console.log('Navegando a sesión:', { sesionId, dia, semanaId, diaPartido })
+    navigate(`/sesion/${sesionId}`, {
+      state: {
+        semanaId,
+        dia,
+        diaPartido
+      }
+    })
+  }
 
   const getSesionNombre = (sesionId?: string) => {
     if (!sesionId) return null
@@ -56,15 +69,22 @@ export default function CalendarioSemanal({ calendario, sesiones }: Props) {
       {DIAS.map((dia) => {
         const entrada = calendario[dia]
         const esGym = entrada.tipo === 'gym'
+        const esDomingo = dia === 'domingo'
+        const esPartido = entrada.tipo === 'partido'
+        const esFutsal = entrada.tipo === 'futsal_entreno'
 
         return (
           <Card
             key={dia}
             className={cn(
               "transition-all",
-              esGym && "cursor-pointer hover:shadow-md active:scale-[0.98]"
+              esGym && "cursor-pointer hover:shadow-md active:scale-[0.98]",
+              // Colores de fondo suaves para cada tipo
+              esPartido && "bg-orange-50/50 border-orange-200/50",
+              esFutsal && "bg-blue-50/50 border-blue-200/50",
+              esDomingo && "bg-muted border-muted opacity-60 pointer-events-none"
             )}
-            onClick={() => esGym && entrada.sesion_id && navigate(`/sesion/${entrada.sesion_id}`)}
+            onClick={() => esGym && entrada.sesion_id && handleSesionClick(entrada.sesion_id, dia)}
           >
             <CardContent className="p-4">
               <div className="flex justify-between items-start gap-3">

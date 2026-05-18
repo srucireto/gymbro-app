@@ -69,17 +69,24 @@ export interface SemanaProgramada {
   calendario: Record<DiaSemana, EntradaCalendario>
 }
 
+// 1 registro por serie (no por ejercicio)
+// El peso puede cambiar entre series: ajuste en tiempo real,
+// lumbar que cede en compuestos, drop sets en última serie.
 export interface Tracking {
   id: string
   user_id: string
   semana_id: string
   ejercicio_id: string
-  peso_trabajo?: number | null
-  reps_s1?: number | null
-  reps_s2?: number | null
-  reps_s3?: number | null
-  reps_s4?: number | null
-  estado_sesion?: EstadoSesion | null
+  numero_serie: 1 | 2 | 3 | 4
+  peso?: number | null           // kg de esa serie específica
+  reps?: number | null           // reps logradas en esa serie
+  created_at?: string
+}
+
+// Helper: todas las series de un ejercicio en una sesión
+export type TrackingEjercicio = {
+  ejercicio_id: string
+  series: Tracking[]      // ordenadas por numero_serie
 }
 
 export type CheckInEstado = "bien" | "regular" | "mal"

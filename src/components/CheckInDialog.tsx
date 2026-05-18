@@ -63,7 +63,7 @@ export default function CheckInDialog({ open, onCheckIn, diasFuera }: CheckInDia
 
   return (
     <Dialog open={open}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle>Check-in de vuelta</DialogTitle>
           <DialogDescription>

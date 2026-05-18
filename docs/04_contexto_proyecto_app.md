@@ -148,18 +148,20 @@ create table semanas (
   created_at      timestamptz default now()
 );
 
--- Tracking de pesos y reps
+-- Tracking de pesos y reps (1 fila por serie, no por ejercicio)
+-- Razón: el peso puede cambiar entre series (ajuste en tiempo real,
+-- lumbar que cede, drop sets). Registrar peso + reps por serie
+-- es el dato real vs el ideal teórico de "mismo peso todas las series".
 create table tracking (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid references auth.users(id) on delete cascade,
   semana_id     uuid references semanas(id) on delete cascade,
   ejercicio_id  uuid references ejercicios(id),
-  peso_trabajo  numeric,
-  reps_s1       integer,
-  reps_s2       integer,
-  reps_s3       integer,
-  reps_s4       integer,
-  created_at    timestamptz default now()
+  numero_serie  integer not null check (numero_serie between 1 and 4),
+  peso          numeric,           -- kg para esa serie específica
+  reps          integer,           -- reps logradas en esa serie
+  created_at    timestamptz default now(),
+  unique (semana_id, ejercicio_id, numero_serie)
 );
 
 -- RLS: cada usuario solo ve y modifica sus propios datos
@@ -262,16 +264,23 @@ export interface SemanaProgramada {
   calendario: Record<DiaSemana, EntradaCalendario>
 }
 
+// 1 registro por serie (no por ejercicio)
+// El peso puede cambiar entre series: ajuste en tiempo real,
+// lumbar que cede en compuestos, drop sets en última serie.
 export interface Tracking {
   id: string
   user_id: string
   semana_id: string
   ejercicio_id: string
-  peso_trabajo?: number
-  reps_s1?: number
-  reps_s2?: number
-  reps_s3?: number
-  reps_s4?: number
+  numero_serie: 1 | 2 | 3 | 4
+  peso?: number           // kg de esa serie específica
+  reps?: number           // reps logradas en esa serie
+}
+
+// Helper: todas las series de un ejercicio en una sesión
+export type TrackingEjercicio = {
+  ejercicio_id: string
+  series: Tracking[]      // ordenadas por numero_serie
 }
 ```
 
@@ -385,7 +394,15 @@ export function generarCalendario(
 - Lista de ejercicios con: nombre, grupo muscular, series × reps, RIR
 - Notas técnicas expandibles (con nota de ajuste lumbar/antropometría si aplica)
 - Botón "Ver video" → abre búsqueda en YouTube
-- Inputs para tracking: peso de trabajo + reps S1/S2/S3/S4
+- Inputs para tracking: por cada serie, un par de inputs [peso kg] + [reps]
+  - Ejemplo visual:
+    S1  [ 100 kg ]  [ 7 reps ]
+    S2  [ 100 kg ]  [ 6 reps ]
+    S3  [  95 kg ]  [ 6 reps ]
+    S4  [  95 kg ]  [ 5 reps ]
+  - El peso de S1 se pre-pobla con el último peso registrado para ese ejercicio
+  - Si S1 == S2 == S3 == S4 en peso: el usuario lo repite manualmente o la UI
+    ofrece "aplicar a todas las series" como shortcut
 
 ### Pantalla 3 — Gestión de rutinas
 - Lista de rutinas cargadas (activa marcada)

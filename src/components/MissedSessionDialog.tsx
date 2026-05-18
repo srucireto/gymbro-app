@@ -60,7 +60,7 @@ export default function MissedSessionDialog({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle>Marcar sesión como faltada</DialogTitle>
           <DialogDescription>
