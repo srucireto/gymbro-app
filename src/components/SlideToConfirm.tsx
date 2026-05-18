@@ -32,7 +32,7 @@ export default function SlideToConfirm({
     }
   }, [isCompleted, onConfirm])
 
-  const handleStart = (clientX: number) => {
+  const handleStart = (_clientX: number) => {
     if (isCompleted) return
     setIsDragging(true)
   }

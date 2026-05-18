@@ -7,7 +7,7 @@ import CheckInDialog from '@/components/CheckInDialog'
 import SlideToConfirm from '@/components/SlideToConfirm'
 import { modificarEjerciciosPorCheckIn, necesitaCheckIn } from '@/lib/illness'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, Play, CheckCircle2, Check } from 'lucide-react'
+import { AlertCircle, Play, CheckCircle2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -37,7 +37,6 @@ export default function SesionDetailPage() {
   // Illness logic state
   const [semanaId, setSemanaId] = useState<string | null>(navState?.semanaId || null)
   const [dia, setDia] = useState<DiaSemana | null>(navState?.dia || null)
-  const [diaPartido, setDiaPartido] = useState<DiaSemana | null>(navState?.diaPartido || null)
   const [showMissedDialog, setShowMissedDialog] = useState(false)
   const [showCheckInDialog, setShowCheckInDialog] = useState(false)
   const [pendingAusencia, setPendingAusencia] = useState<Ausencia | null>(null)
@@ -112,7 +111,6 @@ export default function SesionDetailPage() {
 
             if (semanaActual) {
               setSemanaId(semanaActual.id)
-              setDiaPartido(semanaActual.dia_partido)
 
               // Buscar en qué día está programada esta sesión
               const { data: entrada } = await supabase
