@@ -522,6 +522,7 @@ export default function SesionDetailPage() {
                         <div className="grid grid-cols-2 gap-2">
                           <input
                             type="number"
+                            inputMode="decimal"
                             step="0.5"
                             placeholder="Peso (kg)"
                             value={getSerieTracking(1)?.peso ?? ''}
@@ -530,6 +531,7 @@ export default function SesionDetailPage() {
                           />
                           <input
                             type="number"
+                            inputMode="numeric"
                             placeholder="Reps"
                             value={getSerieTracking(1)?.reps ?? ''}
                             onChange={(e) => handleTrackingChange(ejercicio.id, 1, 'reps', e.target.value)}
@@ -544,6 +546,7 @@ export default function SesionDetailPage() {
                         <div className="grid grid-cols-2 gap-2">
                           <input
                             type="number"
+                            inputMode="decimal"
                             step="0.5"
                             placeholder="Peso (kg)"
                             value={getSerieTracking(2)?.peso ?? ''}
@@ -552,6 +555,7 @@ export default function SesionDetailPage() {
                           />
                           <input
                             type="number"
+                            inputMode="numeric"
                             placeholder="Reps"
                             value={getSerieTracking(2)?.reps ?? ''}
                             onChange={(e) => handleTrackingChange(ejercicio.id, 2, 'reps', e.target.value)}
@@ -566,6 +570,7 @@ export default function SesionDetailPage() {
                         <div className="grid grid-cols-2 gap-2">
                           <input
                             type="number"
+                            inputMode="decimal"
                             step="0.5"
                             placeholder="Peso (kg)"
                             value={getSerieTracking(3)?.peso ?? ''}
@@ -574,6 +579,7 @@ export default function SesionDetailPage() {
                           />
                           <input
                             type="number"
+                            inputMode="numeric"
                             placeholder="Reps"
                             value={getSerieTracking(3)?.reps ?? ''}
                             onChange={(e) => handleTrackingChange(ejercicio.id, 3, 'reps', e.target.value)}
@@ -589,6 +595,7 @@ export default function SesionDetailPage() {
                           <div className="grid grid-cols-2 gap-2">
                             <input
                               type="number"
+                              inputMode="decimal"
                               step="0.5"
                               placeholder="Peso (kg)"
                               value={getSerieTracking(4)?.peso ?? ''}
@@ -597,6 +604,7 @@ export default function SesionDetailPage() {
                             />
                             <input
                               type="number"
+                              inputMode="numeric"
                               placeholder="Reps"
                               value={getSerieTracking(4)?.reps ?? ''}
                               onChange={(e) => handleTrackingChange(ejercicio.id, 4, 'reps', e.target.value)}
