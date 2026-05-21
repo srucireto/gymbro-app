@@ -1,21 +1,41 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useRutinaActiva, useSemanaActual } from '@/hooks/useSupabase'
 import { generarCalendario, DIAS_PARTIDO, DIAS_FUTSAL_ENTRENO } from '@/lib/scheduler'
 import CalendarioSemanal from '@/components/CalendarioSemanal'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import MessageDialog from '@/components/MessageDialog'
 import type { DiaSemana } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Progress } from '@/components/ui/progress'
+import { BarChart3, LogOut } from 'lucide-react'
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const { rutina, sesiones, loading: loadingRutina } = useRutinaActiva()
   const { semana, setSemana, loading: loadingSemana } = useSemanaActual()
   const [mostrarSelector, setMostrarSelector] = useState(false)
   const [paso, setPaso] = useState<1 | 2>(1)
   const [diaPartidoSeleccionado, setDiaPartidoSeleccionado] = useState<DiaSemana | null>(null)
   const [guardando, setGuardando] = useState(false)
+
+  // Dialog states
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    title: string
+    description: string
+    onConfirm: () => void
+  }>({ open: false, title: '', description: '', onConfirm: () => {} })
+
+  const [messageDialog, setMessageDialog] = useState<{
+    open: boolean
+    title: string
+    message: string
+    variant: 'default' | 'success' | 'error'
+  }>({ open: false, title: '', message: '', variant: 'default' })
 
   const loading = loadingRutina || loadingSemana
 
@@ -88,6 +108,104 @@ export default function HomePage() {
     setDiaPartidoSeleccionado(null)
   }
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      navigate('/login')
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
+    }
+  }
+
+  const handleUnmarkMissed = (dia: DiaSemana, sesionId: string) => {
+    if (!semana) return
+
+    setConfirmDialog({
+      open: true,
+      title: 'Restaurar sesión',
+      description: `¿Restaurar la sesión del ${dia}? Esto la marcará como pendiente nuevamente.`,
+      onConfirm: () => executeUnmarkMissed(dia, sesionId)
+    })
+  }
+
+  const executeUnmarkMissed = async (dia: DiaSemana, sesionId: string) => {
+    if (!semana) return
+
+    setConfirmDialog({ ...confirmDialog, open: false })
+
+    try {
+      // Obtener el calendario actual
+      const calendario = semana.calendario as Record<DiaSemana, any>
+
+      // Encontrar la sesión original antes de que fuera marcada como faltada
+      const entradaOriginal = calendario[dia]
+
+      // Restaurar el estado original (eliminar el estado "faltada")
+      const nuevoCalendario = {
+        ...calendario,
+        [dia]: {
+          ...entradaOriginal,
+          tipo: 'gym',
+          sesion_id: sesionId,
+          estado: 'normal'
+        }
+      }
+
+      // Actualizar el calendario en la BD
+      const { error: updateError } = await supabase
+        .from('semanas')
+        .update({ calendario: nuevoCalendario })
+        .eq('id', semana.id)
+
+      if (updateError) throw updateError
+
+      // Eliminar el registro de ausencia si existe
+      console.log('🔍 Intentando eliminar ausencia:', {
+        semana_id: semana.id,
+        sesion_id: sesionId
+      })
+
+      // Eliminar TODAS las ausencias de esta sesión en esta semana
+      // (sin filtrar por dia_faltado que podría no coincidir)
+      const { data: deletedData, error: deleteError } = await supabase
+        .from('ausencias')
+        .delete({ count: 'exact' })
+        .eq('semana_id', semana.id)
+        .eq('sesion_id', sesionId)
+        .select()
+
+      if (deleteError) {
+        console.error('❌ Error al eliminar ausencia:', deleteError)
+        throw deleteError
+      } else {
+        console.log('✅ Ausencias eliminadas:', deletedData?.length || 0)
+        if (deletedData && deletedData.length > 0) {
+          console.log('Detalles de ausencias eliminadas:', deletedData)
+        } else {
+          console.warn('⚠️ No se encontraron ausencias para eliminar. Esto es extraño.')
+        }
+      }
+
+      // Actualizar el estado local
+      setSemana({ ...semana, calendario: nuevoCalendario })
+
+      setMessageDialog({
+        open: true,
+        title: 'Sesión restaurada',
+        message: 'La sesión ha sido restaurada correctamente y está nuevamente como pendiente.',
+        variant: 'success'
+      })
+    } catch (error) {
+      console.error('Error al restaurar sesión:', error)
+      setMessageDialog({
+        open: true,
+        title: 'Error',
+        message: 'No se pudo restaurar la sesión. Por favor, intenta de nuevo.',
+        variant: 'error'
+      })
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -120,6 +238,32 @@ export default function HomePage() {
   const calendario = semana?.calendario || generarCalendario("viernes", diaFutsalDefault, sesiones)
   const semanaDelMesociclo = semana?.semana_numero || 1
 
+  // Calcular progreso basado en sesiones completadas
+  const calcularProgreso = () => {
+    if (!semana || !rutina) return 0
+
+    const calendarioObj = semana.calendario as Record<DiaSemana, any>
+
+    // Contar sesiones de gym en la semana (excluir partido, futsal, descanso, gym_cerrado)
+    const sesionesGymPorSemana = Object.values(calendarioObj).filter(
+      (entrada: any) => entrada.tipo === 'gym'
+    ).length
+
+    // Total de sesiones en el mesociclo completo
+    const totalSesiones = sesionesGymPorSemana * rutina.semanas_duracion
+
+    // Contar sesiones completadas en la semana actual
+    // En el futuro podrías sumar todas las semanas del mesociclo
+    const sesionesCompletadas = Object.values(calendarioObj).filter(
+      (entrada: any) => entrada.tipo === 'gym' && entrada.estado === 'completada'
+    ).length
+
+    if (totalSesiones === 0) return 0
+    return Math.round((sesionesCompletadas / totalSesiones) * 100)
+  }
+
+  const progresoMesociclo = calcularProgreso()
+
   return (
     <div className="min-h-screen bg-[#fafafa] pb-20">
       <div className="container mx-auto px-4 py-6 max-w-md">
@@ -131,11 +275,16 @@ export default function HomePage() {
               {rutina.nombre}
             </p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/rutinas">
-              Rutinas
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/rutinas">
+                Rutinas
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Progreso del mesociclo */}
@@ -148,15 +297,30 @@ export default function HomePage() {
               Semana {semanaDelMesociclo} <span className="text-muted-foreground">/ {rutina.semanas_duracion}</span>
             </CardTitle>
           </CardHeader>
-          {semanaDelMesociclo === 7 && (
-            <CardContent className="pt-0">
+          <CardContent className="space-y-3">
+            {/* Barra de progreso */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Sesiones completadas</span>
+                <span className="font-semibold">
+                  {progresoMesociclo}%
+                </span>
+              </div>
+              <Progress
+                value={progresoMesociclo}
+                className="h-2"
+              />
+            </div>
+
+            {/* Deload warning */}
+            {semanaDelMesociclo === 7 && (
               <Button variant="link" asChild className="p-0 h-auto text-orange-600 font-semibold">
                 <Link to="/deload">
                   Ver instrucciones de deload →
                 </Link>
               </Button>
-            </CardContent>
-          )}
+            )}
+          </CardContent>
         </Card>
 
         {/* Selector de días */}
@@ -257,8 +421,40 @@ export default function HomePage() {
           sesiones={sesiones}
           semanaId={semana?.id}
           diaPartido={semana?.dia_partido}
+          onUnmarkMissed={handleUnmarkMissed}
         />
+
+        {/* Link a Estadísticas */}
+        <div className="mt-6">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full py-6 text-base"
+          >
+            <Link to="/stats" className="flex items-center justify-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              <span className="font-semibold">Ver Estadísticas</span>
+            </Link>
+          </Button>
+        </div>
       </div>
+
+      {/* Custom Dialogs */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+      />
+
+      <MessageDialog
+        open={messageDialog.open}
+        onOpenChange={(open) => setMessageDialog({ ...messageDialog, open })}
+        title={messageDialog.title}
+        message={messageDialog.message}
+        variant={messageDialog.variant}
+      />
     </div>
   )
 }

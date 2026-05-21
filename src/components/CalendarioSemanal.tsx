@@ -13,9 +13,10 @@ interface Props {
   sesiones: Sesion[]
   semanaId?: string
   diaPartido?: DiaSemana
+  onUnmarkMissed?: (dia: DiaSemana, sesionId: string) => void
 }
 
-export default function CalendarioSemanal({ calendario, sesiones, semanaId, diaPartido }: Props) {
+export default function CalendarioSemanal({ calendario, sesiones, semanaId, diaPartido, onUnmarkMissed }: Props) {
   const navigate = useNavigate()
 
   const handleSesionClick = (sesionId: string, dia: DiaSemana) => {
@@ -72,19 +73,28 @@ export default function CalendarioSemanal({ calendario, sesiones, semanaId, diaP
         const esDomingo = dia === 'domingo'
         const esPartido = entrada.tipo === 'partido'
         const esFutsal = entrada.tipo === 'futsal_entreno'
+        const esFaltada = entrada.estado === 'faltada'
+        const esRecuperada = entrada.estado === 'recuperada'
+        const esCompletada = entrada.estado === 'completada'
+        const requiereCheckIn = entrada.estado === 'vuelta_regular' || entrada.estado === 'vuelta_mal' || entrada.estado === 'vuelta_bien'
 
         return (
           <Card
             key={dia}
             className={cn(
               "transition-all",
-              esGym && "cursor-pointer hover:shadow-md active:scale-[0.98]",
+              esGym && !esFaltada && !esCompletada && "cursor-pointer hover:shadow-md active:scale-[0.98]",
               // Colores de fondo suaves para cada tipo
               esPartido && "bg-orange-50/50 border-orange-200/50",
               esFutsal && "bg-blue-50/50 border-blue-200/50",
-              esDomingo && "bg-muted border-muted opacity-60 pointer-events-none"
+              esDomingo && "bg-muted border-muted opacity-60 pointer-events-none",
+              // Estilos especiales para illness logic
+              esFaltada && "bg-gray-50 border-gray-200 opacity-50",
+              esRecuperada && "bg-green-50/50 border-green-200",
+              esCompletada && "bg-green-50 border-green-300",
+              requiereCheckIn && "bg-blue-50/50 border-blue-300 ring-2 ring-blue-200"
             )}
-            onClick={() => esGym && entrada.sesion_id && handleSesionClick(entrada.sesion_id, dia)}
+            onClick={() => esGym && entrada.sesion_id && !esFaltada && !esCompletada && handleSesionClick(entrada.sesion_id, dia)}
           >
             <CardContent className="p-4">
               <div className="flex justify-between items-start gap-3">
@@ -93,7 +103,13 @@ export default function CalendarioSemanal({ calendario, sesiones, semanaId, diaP
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {dia}
                     </span>
-                    <Badge variant={getTipoVariant(entrada.tipo)} className="text-xs">
+                    <Badge
+                      variant={getTipoVariant(entrada.tipo)}
+                      className={cn(
+                        "text-xs",
+                        esFaltada && "line-through opacity-60"
+                      )}
+                    >
                       {getTipoLabel(entrada)}
                     </Badge>
                   </div>
@@ -107,13 +123,46 @@ export default function CalendarioSemanal({ calendario, sesiones, semanaId, diaP
                       Pospuesta
                     </Badge>
                   )}
+                  {entrada.estado === 'faltada' && (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs bg-gray-100 text-gray-500">
+                        ✗ Faltada
+                      </Badge>
+                      {onUnmarkMissed && entrada.sesion_id && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onUnmarkMissed(dia, entrada.sesion_id!)
+                          }}
+                          className="text-xs text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Restaurar
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {entrada.estado === 'recuperada' && entrada.dia_original && (
+                    <Badge variant="default" className="text-xs bg-green-100 text-green-700 border-green-300">
+                      ↻ Recuperada desde {entrada.dia_original}
+                    </Badge>
+                  )}
+                  {entrada.estado === 'completada' && (
+                    <Badge variant="default" className="text-xs bg-green-100 text-green-700 border-green-300">
+                      ✓ Completada
+                    </Badge>
+                  )}
+                  {(entrada.estado === 'vuelta_regular' || entrada.estado === 'vuelta_mal' || entrada.estado === 'vuelta_bien') && (
+                    <Badge variant="default" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
+                      🏥 Check-in requerido
+                    </Badge>
+                  )}
                   {entrada.advertencia && (
                     <p className="text-xs text-muted-foreground leading-tight">
                       ⚠️ {entrada.advertencia}
                     </p>
                   )}
                 </div>
-                {esGym && (
+                {esGym && !esCompletada && (
                   <div className="text-lg text-muted-foreground">→</div>
                 )}
               </div>

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import type { Sesion, Ejercicio, Tracking, DiasFuera, CheckInEstado, DiaSemana, Ausencia } from '@/types'
-import MissedSessionDialog from '@/components/MissedSessionDialog'
-import CheckInDialog from '@/components/CheckInDialog'
+import type { Sesion, Ejercicio, Tracking, DiaSemana, EntradaCalendario } from '@/types'
 import SlideToConfirm from '@/components/SlideToConfirm'
-import { modificarEjerciciosPorCheckIn, necesitaCheckIn } from '@/lib/illness'
+import MessageDialog from '@/components/MessageDialog'
+import ConfirmDialog from '@/components/ConfirmDialog'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, Play, CheckCircle2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -29,7 +28,6 @@ export default function SesionDetailPage() {
 
   const [sesion, setSesion] = useState<Sesion | null>(null)
   const [ejercicios, setEjercicios] = useState<Ejercicio[]>([])
-  const [originalEjercicios, setOriginalEjercicios] = useState<Ejercicio[]>([]) // Para restaurar después de check-in
   const [tracking, setTracking] = useState<Record<string, Tracking[]>>({})
   const [expandido, setExpandido] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
@@ -37,13 +35,25 @@ export default function SesionDetailPage() {
   // Illness logic state
   const [semanaId, setSemanaId] = useState<string | null>(navState?.semanaId || null)
   const [dia, setDia] = useState<DiaSemana | null>(navState?.dia || null)
-  const [showMissedDialog, setShowMissedDialog] = useState(false)
-  const [showCheckInDialog, setShowCheckInDialog] = useState(false)
-  const [pendingAusencia, setPendingAusencia] = useState<Ausencia | null>(null)
-  const [checkInRequired, setCheckInRequired] = useState(false)
-  const [ejerciciosModificados, setEjerciciosModificados] = useState(false)
   const [showCompletarDialog, setShowCompletarDialog] = useState(false)
   const [ejerciciosIncompletos, setEjerciciosIncompletos] = useState<string[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
+
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    title: string
+    description: string
+    onConfirm: () => void
+  }>({ open: false, title: '', description: '', onConfirm: () => {} })
+
+  // Message dialog state
+  const [messageDialog, setMessageDialog] = useState<{
+    open: boolean
+    title: string
+    message: string
+    variant: 'default' | 'success' | 'error'
+  }>({ open: false, title: '', message: '', variant: 'default' })
 
   useEffect(() => {
     async function fetchSesion() {
@@ -76,76 +86,58 @@ export default function SesionDetailPage() {
 
         if (ejerciciosError) throw ejerciciosError
         setEjercicios(ejerciciosData || [])
-        setOriginalEjercicios(ejerciciosData || [])
 
-        // Verificar si hay usuario autenticado para tracking y ausencias
+        // Obtener usuario (requerido con autenticación)
         const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          console.error('Usuario no autenticado')
+          throw new Error('Usuario no autenticado')
+        }
+        console.log('Usuario encontrado:', user.id)
+        setUserId(user.id)
 
-        if (user) {
-          // Obtener tracking existente (requiere autenticación)
-          const { data: trackingData } = await supabase
-            .from('tracking')
-            .select('*')
-            .in('ejercicio_id', (ejerciciosData || []).map(e => e.id))
-            .order('numero_serie', { ascending: true })
+        // Obtener tracking existente
+        // RLS filtrará automáticamente por user_id
+        const { data: trackingData } = await supabase
+          .from('tracking')
+          .select('*')
+          .in('ejercicio_id', (ejerciciosData || []).map(e => e.id))
+          .order('numero_serie', { ascending: true })
 
-          // Agrupar por ejercicio_id
-          const trackingMap: Record<string, Tracking[]> = {}
-          trackingData?.forEach(t => {
-            if (!trackingMap[t.ejercicio_id]) {
-              trackingMap[t.ejercicio_id] = []
-            }
-            trackingMap[t.ejercicio_id].push(t)
-          })
-          setTracking(trackingMap)
-
-          // Si no tenemos semana/dia del nav state, intentar obtenerlo del calendario
-          if (!semanaId || !dia) {
-            const { data: semanaActual } = await supabase
-              .from('semanas')
-              .select('id, dia_partido')
-              .eq('user_id', user.id)
-              .order('created_at', { ascending: false })
-              .limit(1)
-              .single()
-
-            if (semanaActual) {
-              setSemanaId(semanaActual.id)
-
-              // Buscar en qué día está programada esta sesión
-              const { data: entrada } = await supabase
-                .from('calendario_semanal')
-                .select('dia')
-                .eq('semana_id', semanaActual.id)
-                .eq('sesion_id', id)
-                .single()
-
-              if (entrada) {
-                setDia(entrada.dia)
-              }
-            }
+        // Agrupar por ejercicio_id
+        const trackingMap: Record<string, Tracking[]> = {}
+        trackingData?.forEach(t => {
+          if (!trackingMap[t.ejercicio_id]) {
+            trackingMap[t.ejercicio_id] = []
           }
+          trackingMap[t.ejercicio_id].push(t)
+        })
+        setTracking(trackingMap)
 
-          // Verificar si hay ausencia pendiente de check-in para esta sesión
-          const { data: ausenciaData } = await supabase
-            .from('ausencias')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('sesion_id', id)
-            .eq('sesion_recuperada', false)
-            .is('check_in_estado', null)
+        // Si no tenemos semana/dia del nav state, intentar obtenerlo del calendario
+        if (!semanaId || !dia) {
+          // RLS filtrará automáticamente por user_id
+          const { data: semanaActual } = await supabase
+            .from('semanas')
+            .select('id, dia_partido, calendario')
             .order('created_at', { ascending: false })
             .limit(1)
             .single()
 
-          if (ausenciaData && necesitaCheckIn(ausenciaData.dias_fuera)) {
-            setPendingAusencia(ausenciaData)
-            setCheckInRequired(true)
-            setShowCheckInDialog(true)
+            if (semanaActual) {
+              setSemanaId(semanaActual.id)
+
+              // Buscar en qué día está programada esta sesión en el calendario JSONB
+              const calendario = semanaActual.calendario as Record<DiaSemana, EntradaCalendario>
+              const diaEncontrado = Object.entries(calendario).find(
+                ([_, entrada]) => entrada.sesion_id === id
+              )?.[0] as DiaSemana | undefined
+
+              if (diaEncontrado) {
+                setDia(diaEncontrado)
+              }
+            }
           }
-        } else {
-          console.log('No hay usuario autenticado - solo modo lectura')
-        }
       } catch (error) {
         console.error('Error fetching sesion:', error)
       } finally {
@@ -232,71 +224,146 @@ export default function SesionDetailPage() {
     window.open(url, '_blank')
   }
 
-  const handleMissedSession = async (diasFuera: DiasFuera) => {
+  const handleFaltarClick = () => {
+    setConfirmDialog({
+      open: true,
+      title: 'Marcar como faltada',
+      description: `¿Marcar la sesión de ${sesion?.nombre} como faltada? El calendario se reorganizará automáticamente.`,
+      onConfirm: () => handleMissedSession()
+    })
+  }
+
+  const handleMissedSession = async () => {
     if (!id || !semanaId || !dia) {
-      alert('No se puede marcar como faltada: falta información de contexto')
+      setConfirmDialog({ ...confirmDialog, open: false })
+      setMessageDialog({
+        open: true,
+        title: 'Error',
+        message: 'No se puede marcar como faltada: falta información de contexto',
+        variant: 'error'
+      })
       return
     }
 
+    if (!userId) {
+      console.warn('No hay usuario autenticado, usando ID por defecto')
+    }
+
+    setConfirmDialog({ ...confirmDialog, open: false })
+
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      // Obtener la semana actual con su calendario y sesiones
+      const { data: semanaData, error: semanaError } = await supabase
+        .from('semanas')
+        .select('calendario, dia_partido, rutina_id')
+        .eq('id', semanaId)
+        .single()
+
+      if (semanaError) throw semanaError
+
+      // Obtener todas las sesiones de la rutina
+      const { data: sesionesData, error: sesionesError } = await supabase
+        .from('sesiones')
+        .select('*')
+        .eq('rutina_id', semanaData.rutina_id)
+
+      if (sesionesError) throw sesionesError
+
+      // Encontrar la sesión actual
+      const sesionActual = sesionesData?.find(s => s.id === id)
+      if (!sesionActual) {
+        throw new Error('No se encontró la sesión')
+      }
+
+      // Importar la función de reorganización
+      const { reorganizarCalendarioPorAusencia } = await import('@/lib/illness')
+
+      // Siempre marcar como 1 día
+      const diasFuera = 1
+
+      // Reorganizar el calendario
+      const resultado = reorganizarCalendarioPorAusencia(
+        diasFuera,
+        sesionActual,
+        dia,
+        semanaData.calendario,
+        semanaData.dia_partido,
+        sesionesData || []
+      )
+
+      // Agregar timestamp a la sesión faltada
+      const ahora = new Date().toISOString()
+      const calendarioConTimestamp = { ...resultado.nuevoCalendario }
+
+      // Buscar la entrada que fue marcada como faltada y agregarle el timestamp
+      Object.keys(calendarioConTimestamp).forEach((diaKey) => {
+        const entrada = calendarioConTimestamp[diaKey as DiaSemana]
+        if (entrada.estado === 'faltada' && diaKey === dia) {
+          calendarioConTimestamp[diaKey as DiaSemana] = {
+            ...entrada,
+            fecha_faltada: ahora
+          }
+        }
+      })
+
+      // Actualizar el calendario en la BD
+      const { error: updateError } = await supabase
+        .from('semanas')
+        .update({ calendario: calendarioConTimestamp })
+        .eq('id', semanaId)
+
+      if (updateError) throw updateError
+
+      // Determinar si la sesión fue recuperada
+      const sesionRecuperada = calendarioConTimestamp[dia]?.estado === 'recuperada' ||
+                               Object.values(calendarioConTimestamp).some(
+                                 e => e.estado === 'recuperada' && e.dia_original === dia
+                               )
+
+      const diaRecuperacion = Object.entries(calendarioConTimestamp).find(
+        ([_, entrada]) => entrada.estado === 'recuperada' && entrada.dia_original === dia
+      )?.[0] as DiaSemana | undefined
 
       // Crear registro de ausencia
-      const { error } = await supabase
+      const { error: ausenciaError } = await supabase
         .from('ausencias')
         .insert({
-          user_id: user.id,
+          user_id: userId,
           semana_id: semanaId,
           sesion_id: id,
           dia_faltado: dia,
           dias_fuera: diasFuera,
-          sesion_recuperada: false
+          sesion_recuperada: sesionRecuperada,
+          dia_recuperacion: diaRecuperacion
         })
 
-      if (error) throw error
+      if (ausenciaError) throw ausenciaError
 
-      setShowMissedDialog(false)
+      // Mostrar mensaje según el resultado
+      setMessageDialog({
+        open: true,
+        title: 'Sesión marcada como faltada',
+        message: resultado.mensaje,
+        variant: 'success'
+      })
 
-      // Si necesita check-in, mostrar el diálogo
-      if (necesitaCheckIn(diasFuera)) {
-        alert('Se reorganizará el calendario. Al volver se pedirá check-in.')
-      }
-
-      // Volver al home
-      navigate('/')
+      // Volver al home después de 2 segundos
+      setTimeout(() => navigate('/'), 2000)
     } catch (error) {
       console.error('Error marking session as missed:', error)
-      alert('Error al marcar sesión como faltada')
-    }
-  }
 
-  const handleCheckIn = async (estado: CheckInEstado) => {
-    if (!pendingAusencia) return
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Actualizar ausencia con el estado del check-in
-      const { error } = await supabase
-        .from('ausencias')
-        .update({ check_in_estado: estado })
-        .eq('id', pendingAusencia.id)
-
-      if (error) throw error
-
-      // Aplicar modificaciones a los ejercicios según el estado
-      const ejerciciosModificadosResult = modificarEjerciciosPorCheckIn(originalEjercicios, estado)
-      setEjercicios(ejerciciosModificadosResult)
-      setEjerciciosModificados(estado !== 'bien')
-
-      setShowCheckInDialog(false)
-      setCheckInRequired(false)
-      setPendingAusencia(null)
-    } catch (error) {
-      console.error('Error saving check-in:', error)
-      alert('Error al guardar check-in')
+      // Only show error if it's a database error, not navigation
+      if (error && typeof error === 'object' && 'code' in error) {
+        setMessageDialog({
+          open: true,
+          title: 'Error',
+          message: 'Error al marcar sesión como faltada: ' + (error as any).message,
+          variant: 'error'
+        })
+      } else {
+        // If it's not a database error, the operation likely succeeded
+        console.warn('Non-critical error, operation may have succeeded:', error)
+      }
     }
   }
 
@@ -321,14 +388,93 @@ export default function SesionDetailPage() {
     }
   }
 
-  const completarSesion = () => {
-    // TODO: Aquí puedes agregar lógica adicional como:
-    // - Guardar un registro de sesión completada en la BD
-    // - Marcar la entrada del calendario como completada
-    // - Mostrar un mensaje de éxito
-    alert('¡Sesión completada! 🎉')
+  const completarSesion = async () => {
+    if (!semanaId || !dia) {
+      console.error('No hay datos de semana o día')
+      return
+    }
+
     setShowCompletarDialog(false)
-    navigate('/')
+
+    try {
+      // Obtener los datos actuales de la semana
+      const { data: semanaData, error: semanaError } = await supabase
+        .from('semanas')
+        .select('*')
+        .eq('id', semanaId)
+        .single()
+
+      if (semanaError) throw semanaError
+      if (!semanaData) {
+        throw new Error('No se encontró la semana')
+      }
+
+      const calendarioActual = semanaData.calendario as Record<DiaSemana, any>
+      const ahora = new Date().toISOString()
+
+      // Marcar la sesión como completada en el calendario con timestamp
+      const nuevoCalendario = {
+        ...calendarioActual,
+        [dia]: {
+          ...calendarioActual[dia],
+          estado: 'completada',
+          fecha_completada: ahora
+        }
+      }
+
+      // Contar sesiones de gym completadas antes y después de este cambio
+      const sesionesGymCompletadasAntes = Object.values(calendarioActual).filter(
+        (entrada: any) => entrada.tipo === 'gym' && entrada.estado === 'completada'
+      ).length
+
+      const sesionesGymCompletadasDespues = Object.values(nuevoCalendario).filter(
+        (entrada: any) => entrada.tipo === 'gym' && entrada.estado === 'completada'
+      ).length
+
+      const sesionesGymTotales = Object.values(nuevoCalendario).filter(
+        (entrada: any) => entrada.tipo === 'gym'
+      ).length
+
+      // Preparar el objeto de actualización
+      const updateData: any = { calendario: nuevoCalendario }
+
+      // Si es la primera sesión completada, guardar fecha_inicio_real
+      if (sesionesGymCompletadasAntes === 0 && sesionesGymCompletadasDespues === 1) {
+        updateData.fecha_inicio_real = ahora
+        console.log('🎉 Primera sesión del mesociclo completada, guardando fecha_inicio_real')
+      }
+
+      // Si es la última sesión, guardar fecha_fin_real
+      if (sesionesGymCompletadasDespues === sesionesGymTotales) {
+        updateData.fecha_fin_real = ahora
+        console.log('🏁 Última sesión del mesociclo completada, guardando fecha_fin_real')
+      }
+
+      const { error } = await supabase
+        .from('semanas')
+        .update(updateData)
+        .eq('id', semanaData.id)
+
+      if (error) throw error
+
+      console.log('✅ Sesión marcada como completada')
+
+      setMessageDialog({
+        open: true,
+        title: '¡Sesión completada!',
+        message: 'Has completado la sesión exitosamente. ¡Buen trabajo! 💪',
+        variant: 'success'
+      })
+      setTimeout(() => navigate('/'), 2000)
+    } catch (error) {
+      console.error('Error al completar sesión:', error)
+      setMessageDialog({
+        open: true,
+        title: 'Error',
+        message: 'No se pudo guardar la sesión. Por favor, intenta de nuevo.',
+        variant: 'error'
+      })
+    }
   }
 
   const handleCompletarConIncompletos = () => {
@@ -381,30 +527,25 @@ export default function SesionDetailPage() {
                 </span>
               </div>
             </div>
-            {!checkInRequired && semanaId && dia && (
+            {semanaId && dia && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowMissedDialog(true)}
+                onClick={handleFaltarClick}
               >
                 <AlertCircle className="h-4 w-4 mr-1" />
                 Faltar
               </Button>
             )}
+            {/* Debug info */}
+            {import.meta.env.MODE === 'development' && (
+              <div className="text-xs text-gray-500 mt-2">
+                Debug: semana={semanaId?.slice(0,8) || 'null'} | dia={dia || 'null'} | userId={userId?.slice(0,8) || 'null'}
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {ejerciciosModificados && (
-        <div className="container mx-auto px-4 pt-4 max-w-md">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Ejercicios modificados por check-in. Consulta las notas de cada ejercicio.
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
 
       <div className="container mx-auto px-4 py-6 max-w-md">
         <div className="space-y-6">
@@ -675,22 +816,23 @@ export default function SesionDetailPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Missed Session Dialog */}
-      <MissedSessionDialog
-        open={showMissedDialog}
-        onClose={() => setShowMissedDialog(false)}
-        onConfirm={handleMissedSession}
-        sesionNombre={sesion.nombre}
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
       />
 
-      {/* Check-in Dialog */}
-      {pendingAusencia && (
-        <CheckInDialog
-          open={showCheckInDialog}
-          onCheckIn={handleCheckIn}
-          diasFuera={pendingAusencia.dias_fuera}
-        />
-      )}
+      {/* Message Dialog */}
+      <MessageDialog
+        open={messageDialog.open}
+        onOpenChange={(open) => setMessageDialog({ ...messageDialog, open })}
+        title={messageDialog.title}
+        message={messageDialog.message}
+        variant={messageDialog.variant}
+      />
     </div>
   )
 }

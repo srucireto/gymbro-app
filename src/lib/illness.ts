@@ -28,7 +28,7 @@ function calcularBufferHoras(dia: DiaSemana, diaPartido: DiaSemana): number {
 /**
  * Verifica si un día está después del partido
  */
-function esDespuesDelPartido(dia: DiaSemana, diaPartido: DiaSemana): boolean {
+export function esDespuesDelPartido(dia: DiaSemana, diaPartido: DiaSemana): boolean {
   const idxDia = DIAS.indexOf(dia)
   const idxPartido = DIAS.indexOf(diaPartido)
 
@@ -237,4 +237,151 @@ export function ordenarPorPrioridad(sesiones: Sesion[]): Sesion[] {
   return [...sesiones].sort((a, b) =>
     obtenerPrioridadSesion(a) - obtenerPrioridadSesion(b)
   )
+}
+
+/**
+ * Reorganiza el calendario después de una ausencia
+ */
+export function reorganizarCalendarioPorAusencia(
+  diasFuera: DiasFuera,
+  sesionFaltada: Sesion,
+  diaFaltado: DiaSemana,
+  calendarioActual: Record<DiaSemana, EntradaCalendario>,
+  diaPartido: DiaSemana,
+  sesiones: Sesion[]
+): {
+  nuevoCalendario: Record<DiaSemana, EntradaCalendario>
+  mensaje: string
+  requiereCheckIn: boolean
+  sesionesCheckIn: number
+} {
+
+  const nuevoCalendario = { ...calendarioActual }
+  let mensaje = ''
+
+  // CASO 1: 1 día fuera
+  if (diasFuera === 1) {
+    const resultado = intentarRecuperarSesion(
+      sesionFaltada,
+      diaFaltado,
+      calendarioActual,
+      diaPartido,
+      sesiones
+    )
+
+    if (resultado.recuperada && resultado.nuevoDia) {
+      // Marcar el día original como faltado
+      nuevoCalendario[diaFaltado] = {
+        ...nuevoCalendario[diaFaltado],
+        tipo: "descanso",
+        estado: "faltada"
+      }
+
+      // Mover la sesión al nuevo día
+      nuevoCalendario[resultado.nuevoDia] = {
+        tipo: "gym",
+        sesion_id: sesionFaltada.id,
+        estado: "recuperada",
+        dia_original: diaFaltado
+      }
+
+      mensaje = `✓ Sesión movida a ${resultado.nuevoDia}. Sin modificaciones de carga.`
+      return {
+        nuevoCalendario,
+        mensaje,
+        requiereCheckIn: false,
+        sesionesCheckIn: 0
+      }
+    } else {
+      // No se pudo recuperar
+      nuevoCalendario[diaFaltado] = {
+        ...nuevoCalendario[diaFaltado],
+        tipo: "descanso",
+        estado: "faltada"
+      }
+
+      mensaje = resultado.advertencia || 'Sesión descartada.'
+      return {
+        nuevoCalendario,
+        mensaje,
+        requiereCheckIn: false,
+        sesionesCheckIn: 0
+      }
+    }
+  }
+
+  // CASO 2: 2-3 días fuera
+  if (diasFuera === 2) {
+    // Descartar la sesión faltada
+    nuevoCalendario[diaFaltado] = {
+      ...nuevoCalendario[diaFaltado],
+      tipo: "descanso",
+      estado: "faltada"
+    }
+
+    mensaje = `Sesión descartada. En tu próxima sesión se hará check-in para ajustar la carga según cómo te sientas.`
+
+    return {
+      nuevoCalendario,
+      mensaje,
+      requiereCheckIn: true,
+      sesionesCheckIn: 1
+    }
+  }
+
+  // CASO 3: 4-7 días fuera
+  if (diasFuera === 3) {
+    // Descartar todas las sesiones faltadas de la semana
+    for (const dia of DIAS) {
+      if (nuevoCalendario[dia].sesion_id && !esDespuesDelPartido(dia, diaFaltado)) {
+        nuevoCalendario[dia] = {
+          tipo: "descanso",
+          estado: "faltada"
+        }
+      }
+    }
+
+    mensaje = `Todas las sesiones de esta semana fueron descartadas. Se harán 2 check-ins en tus próximas 2 sesiones para ajustar la carga progresivamente.`
+
+    return {
+      nuevoCalendario,
+      mensaje,
+      requiereCheckIn: true,
+      sesionesCheckIn: 2
+    }
+  }
+
+  // CASO 4: Más de 7 días fuera
+  if (diasFuera === 4) {
+    // Descartar todas las sesiones
+    for (const dia of DIAS) {
+      if (nuevoCalendario[dia].sesion_id) {
+        nuevoCalendario[dia] = {
+          tipo: "descanso",
+          estado: "faltada"
+        }
+      }
+    }
+
+    mensaje = `Todas las sesiones descartadas. Se aplicará reducción progresiva de peso:\n` +
+             `- Semana 1: 60% del último peso\n` +
+             `- Semana 2: 80% del último peso\n` +
+             `- Semana 3: 100% si el check-in lo permite\n\n` +
+             `El mesociclo se reiniciará desde semana 1.`
+
+    return {
+      nuevoCalendario,
+      mensaje,
+      requiereCheckIn: true,
+      sesionesCheckIn: 2
+    }
+  }
+
+  // Fallback (no debería llegar aquí)
+  return {
+    nuevoCalendario: calendarioActual,
+    mensaje: 'Error: caso no manejado',
+    requiereCheckIn: false,
+    sesionesCheckIn: 0
+  }
 }

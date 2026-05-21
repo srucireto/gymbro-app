@@ -30,3 +30,6 @@ dist-ssr
 
 # Vercel
 .vercel
+@/
+*.png
+AUTH_SETUP.md

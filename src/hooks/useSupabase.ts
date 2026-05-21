@@ -10,11 +10,17 @@ export function useRutinaActiva() {
   useEffect(() => {
     async function fetchRutinaActiva() {
       try {
+        // Verificar autenticación primero
+        const { data: { user } } = await supabase.auth.getUser()
+        console.log('🔍 useRutinaActiva - Usuario:', user?.id)
+
         const { data: rutinaData, error: rutinaError } = await supabase
           .from('rutinas')
           .select('*')
           .eq('activa', true)
-          .single()
+          .maybeSingle()
+
+        console.log('🔍 useRutinaActiva - Resultado:', { rutinaData, rutinaError })
 
         if (rutinaError) throw rutinaError
 

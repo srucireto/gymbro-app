@@ -14,6 +14,7 @@ interface CheckInDialogProps {
   open: boolean
   onCheckIn: (estado: CheckInEstado) => void
   diasFuera: number
+  sesionesRestantes?: number
 }
 
 const CHECK_IN_OPTIONS: Array<{
@@ -42,23 +43,30 @@ const CHECK_IN_OPTIONS: Array<{
   }
 ]
 
-export default function CheckInDialog({ open, onCheckIn, diasFuera }: CheckInDialogProps) {
+export default function CheckInDialog({ open, onCheckIn, diasFuera, sesionesRestantes }: CheckInDialogProps) {
   const [selectedEstado, setSelectedEstado] = useState<CheckInEstado | null>(null)
 
   const handleConfirm = () => {
     if (selectedEstado) {
       onCheckIn(selectedEstado)
+      setSelectedEstado(null) // Reset para la próxima vez
     }
   }
 
   const getMessage = () => {
-    if (diasFuera === 1) {
-      return 'Estuviste 1 día fuera. ¿Cómo te sentís para entrenar hoy?'
-    } else if (diasFuera <= 3) {
-      return `Estuviste ${diasFuera} días fuera. ¿Cómo te sentís para entrenar hoy?`
-    } else {
-      return `Estuviste ${diasFuera === 4 ? 'más de 7' : diasFuera} días fuera. Check-in obligatorio antes de empezar.`
+    const baseMessage = diasFuera === 1
+      ? 'Estuviste 1 día fuera.'
+      : diasFuera === 2
+      ? 'Estuviste 2-3 días fuera.'
+      : diasFuera === 3
+      ? 'Estuviste 4-7 días fuera.'
+      : 'Estuviste más de 7 días fuera.'
+
+    if (sesionesRestantes && sesionesRestantes > 0) {
+      return `${baseMessage} ${sesionesRestantes === 1 ? 'Esta es la última sesión con' : `Quedan ${sesionesRestantes} sesiones con`} check-in.`
     }
+
+    return `${baseMessage} ¿Cómo te sentís para entrenar hoy?`
   }
 
   return (

@@ -35,11 +35,14 @@ export default function RutinasPage() {
 
   async function activarRutina(rutinaId: string) {
     try {
-      // Desactivar todas las rutinas
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Usuario no autenticado')
+
+      // Desactivar todas las rutinas del usuario
       await supabase
         .from('rutinas')
         .update({ activa: false })
-        .neq('id', '00000000-0000-0000-0000-000000000000')
+        .eq('user_id', user.id)
 
       // Activar la seleccionada
       const { error } = await supabase
