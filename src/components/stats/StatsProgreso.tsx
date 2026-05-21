@@ -158,7 +158,7 @@ export default function StatsProgreso() {
 
       {ejercicios.map(ej => {
         const tendencia = calcularTendencia(ej.datosProgreso)
-        const ultimosDatos = ej.datosProgreso.slice(-3) // Últimas 3 semanas
+        const ultimosDatos = ej.datosProgreso // Todas las semanas del ciclo
 
         return (
           <Card key={ej.ejercicioId}>
@@ -282,15 +282,9 @@ export default function StatsProgreso() {
                 </div>
 
                 <div className="pt-2 border-t text-xs text-muted-foreground text-center">
-                  {ultimosDatos[ultimosDatos.length - 1].repsPromedio.toFixed(1)} reps promedio · {ultimosDatos[ultimosDatos.length - 1].volumenTotal.toFixed(0)} kg total
+                  {ultimosDatos[ultimosDatos.length - 1].repsPromedio.toFixed(1)} reps promedio · {ultimosDatos[ultimosDatos.length - 1].volumenTotal.toFixed(0)} kg total · {ultimosDatos.length} semanas
                 </div>
               </div>
-
-              {ej.datosProgreso.length > 3 && (
-                <div className="mt-2 pt-2 border-t text-xs text-muted-foreground text-center">
-                  Últimas 3 de {ej.datosProgreso.length} semanas
-                </div>
-              )}
             </CardContent>
           </Card>
         )
