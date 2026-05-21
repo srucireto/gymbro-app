@@ -290,6 +290,31 @@ export default function StatsProgreso() {
                 <div className="pt-2 border-t text-xs text-muted-foreground text-center">
                   {ultimosDatos[ultimosDatos.length - 1].repsPromedio.toFixed(1)} reps promedio · {ultimosDatos[ultimosDatos.length - 1].volumenTotal.toFixed(0)} kg total · {ultimosDatos.length} semanas
                 </div>
+
+                {/* Leyenda explicativa */}
+                <div className="mt-3 p-3 bg-muted/30 rounded-lg">
+                  <div className="text-xs font-medium mb-2 text-muted-foreground">Guía del gráfico:</div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-0.5 bg-primary"></div>
+                      <span className="text-muted-foreground">Línea de tendencia</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-primary border border-background"></div>
+                      <span className="text-muted-foreground">Punto semanal</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-4 bg-primary/10 border-b-2 border-primary"></div>
+                      <span className="text-muted-foreground">Área de progreso</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"/>
+                      </svg>
+                      <span className="text-muted-foreground">Desliza horizontal</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
