@@ -14,9 +14,17 @@ export function useRutinaActiva() {
         const { data: { user } } = await supabase.auth.getUser()
         console.log('🔍 useRutinaActiva - Usuario:', user?.id)
 
+        if (!user) {
+          setRutina(null)
+          setSesiones([])
+          setLoading(false)
+          return
+        }
+
         const { data: rutinaData, error: rutinaError } = await supabase
           .from('rutinas')
           .select('*')
+          .eq('user_id', user.id)
           .eq('activa', true)
           .maybeSingle()
 
