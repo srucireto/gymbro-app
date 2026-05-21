@@ -145,6 +145,18 @@ export default function StatsProgreso() {
     )
   }
 
+  // Agrupar ejercicios por grupo muscular
+  const ejerciciosPorGrupo = ejercicios.reduce((acc, ej) => {
+    const grupo = ej.grupoMuscular
+    if (!acc[grupo]) {
+      acc[grupo] = []
+    }
+    acc[grupo].push(ej)
+    return acc
+  }, {} as Record<string, typeof ejercicios>)
+
+  const gruposOrdenados = Object.keys(ejerciciosPorGrupo).sort()
+
   return (
     <div className="space-y-4">
       <Card>
@@ -154,9 +166,46 @@ export default function StatsProgreso() {
             {ejercicios.length} {ejercicios.length === 1 ? 'ejercicio' : 'ejercicios'} con seguimiento
           </CardDescription>
         </CardHeader>
+        <CardContent>
+          {/* Leyenda explicativa - una sola vez */}
+          <div className="p-3 bg-muted/30 rounded-lg">
+            <div className="text-xs font-medium mb-2 text-muted-foreground">Guía del gráfico:</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-0.5 bg-primary"></div>
+                <span className="text-muted-foreground">Progresión de peso</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary border border-background"></div>
+                <span className="text-muted-foreground">Peso de cada semana</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-4 bg-primary/10 border-b-2 border-primary"></div>
+                <span className="text-muted-foreground">Zona de progreso</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"/>
+                </svg>
+                <span className="text-muted-foreground">Arrastra para ver más</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
-      {ejercicios.map(ej => {
+      {/* Ejercicios agrupados por músculo */}
+      {gruposOrdenados.map(grupoMuscular => (
+        <div key={grupoMuscular} className="space-y-3">
+          {/* Título del grupo muscular */}
+          <div className="px-2">
+            <h3 className="text-sm font-semibold capitalize text-primary">
+              {grupoMuscular}
+            </h3>
+          </div>
+
+          {/* Ejercicios del grupo */}
+          {ejerciciosPorGrupo[grupoMuscular].map(ej => {
         const tendencia = calcularTendencia(ej.datosProgreso)
         const ultimosDatos = ej.datosProgreso // Todas las semanas del ciclo
 
@@ -290,36 +339,12 @@ export default function StatsProgreso() {
                 <div className="pt-2 border-t text-xs text-muted-foreground text-center">
                   {ultimosDatos[ultimosDatos.length - 1].repsPromedio.toFixed(1)} reps promedio · {ultimosDatos[ultimosDatos.length - 1].volumenTotal.toFixed(0)} kg total · {ultimosDatos.length} semanas
                 </div>
-
-                {/* Leyenda explicativa */}
-                <div className="mt-3 p-3 bg-muted/30 rounded-lg">
-                  <div className="text-xs font-medium mb-2 text-muted-foreground">Guía del gráfico:</div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-0.5 bg-primary"></div>
-                      <span className="text-muted-foreground">Progresión de peso</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary border border-background"></div>
-                      <span className="text-muted-foreground">Peso de cada semana</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-4 bg-primary/10 border-b-2 border-primary"></div>
-                      <span className="text-muted-foreground">Zona de progreso</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                        <path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"/>
-                      </svg>
-                      <span className="text-muted-foreground">Arrastra para ver más</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
-        )
-      })}
+        )})}
+        </div>
+      ))}
     </div>
   )
 }
