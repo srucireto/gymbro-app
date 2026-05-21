@@ -9,6 +9,7 @@ export interface Rutina {
   fecha_inicio: string
   semanas_duracion: number
   activa: boolean
+  created_at?: string
   sesiones?: Sesion[]
 }
 
