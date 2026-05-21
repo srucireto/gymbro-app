@@ -195,21 +195,24 @@ export default function StatsProgreso() {
             <CardContent>
               {/* Gráfico de barras vertical */}
               <div className="space-y-3">
-                <div className="flex items-end justify-between gap-2 h-32">
+                <div className="flex items-end justify-between gap-2 h-40 bg-muted/20 rounded-lg p-2">
                   {ultimosDatos.map((dato, index) => {
                     const maxPeso = Math.max(...ultimosDatos.map(d => d.pesoPromedio))
-                    const altura = (dato.pesoPromedio / maxPeso) * 100
+                    const altura = Math.max((dato.pesoPromedio / maxPeso) * 100, 10) // Mínimo 10%
 
                     return (
-                      <div key={`${dato.semanaNumero}-${index}`} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="text-xs font-medium text-center">
-                          {dato.pesoPromedio.toFixed(1)} kg
+                      <div key={`${dato.semanaNumero}-${index}`} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="text-xs font-bold text-center">
+                          {dato.pesoPromedio.toFixed(1)}
                         </div>
                         <div
-                          className="w-full bg-primary rounded-t transition-all"
-                          style={{ height: `${altura}%` }}
+                          className="w-full bg-primary border-2 border-primary/20 rounded-t shadow-sm transition-all hover:opacity-80"
+                          style={{
+                            height: `${altura}%`,
+                            minHeight: '20px'
+                          }}
                         />
-                        <div className="text-xs text-muted-foreground text-center">
+                        <div className="text-xs text-muted-foreground text-center font-medium">
                           S{dato.semanaNumero}
                         </div>
                       </div>
