@@ -1,0 +1,427 @@
+{
+  "nombre": "PPL - Push Pull Legs",
+  "semanas_duracion": 6,
+  "activa": true,
+  "sesiones": [
+    {
+      "nombre": "Push A",
+      "tipo": "push",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 1,
+      "ejercicios": [
+        {
+          "nombre": "Press banca",
+          "grupo_muscular": "Pecho",
+          "series": 4,
+          "reps_target": "6-8",
+          "rir_target": "1-2",
+          "notas": "Activar escapulas, mantener tension en pecho",
+          "youtube_search": "press banca tecnica",
+          "orden": 1
+        },
+        {
+          "nombre": "Press militar",
+          "grupo_muscular": "Hombro anterior",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "2",
+          "notas": "Core activado, no arquear espalda",
+          "youtube_search": "overhead press form",
+          "orden": 2
+        },
+        {
+          "nombre": "Press inclinado mancuernas",
+          "grupo_muscular": "Pecho superior",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Inclinacion 30-45 grados",
+          "youtube_search": "incline dumbbell press",
+          "orden": 3
+        },
+        {
+          "nombre": "Elevaciones laterales",
+          "grupo_muscular": "Hombro lateral",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "1-2",
+          "notas": "Control en la bajada, evitar trapecio",
+          "youtube_search": "lateral raises technique",
+          "orden": 4
+        },
+        {
+          "nombre": "Fondos en paralelas",
+          "grupo_muscular": "Tríceps",
+          "series": 3,
+          "reps_target": "8-12",
+          "rir_target": "2",
+          "notas": "Inclinacion hacia adelante para enfatizar triceps",
+          "youtube_search": "dips triceps",
+          "orden": 5
+        },
+        {
+          "nombre": "Extensiones de triceps polea",
+          "grupo_muscular": "Tríceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "1",
+          "notas": "Codos fijos, squeeze en la contraccion",
+          "youtube_search": "tricep pushdown form",
+          "orden": 6
+        }
+      ]
+    },
+    {
+      "nombre": "Pull A",
+      "tipo": "pull",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 2,
+      "ejercicios": [
+        {
+          "nombre": "Peso muerto",
+          "grupo_muscular": "Espalda baja",
+          "series": 4,
+          "reps_target": "5-8",
+          "rir_target": "2-3",
+          "notas": "Espalda neutra, core activado, cadera hacia atras",
+          "youtube_search": "deadlift tutorial",
+          "orden": 1
+        },
+        {
+          "nombre": "Dominadas",
+          "grupo_muscular": "Espalda alta",
+          "series": 4,
+          "reps_target": "6-10",
+          "rir_target": "1-2",
+          "notas": "Retraccion escapular, pull con codos no con manos",
+          "youtube_search": "pull ups form",
+          "orden": 2
+        },
+        {
+          "nombre": "Remo con barra",
+          "grupo_muscular": "Espalda media",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": "2",
+          "notas": "Torso paralelo al suelo, tirar hacia ombligo",
+          "youtube_search": "barbell row technique",
+          "orden": 3
+        },
+        {
+          "nombre": "Face pulls",
+          "grupo_muscular": "Hombro posterior",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": "1",
+          "notas": "Rotar externamente hombros al tirar",
+          "youtube_search": "face pulls athlean x",
+          "orden": 4
+        },
+        {
+          "nombre": "Curl con barra",
+          "grupo_muscular": "Bíceps",
+          "series": 3,
+          "reps_target": "8-12",
+          "rir_target": "2",
+          "notas": "Codos pegados al cuerpo, sin balanceo",
+          "youtube_search": "barbell curl form",
+          "orden": 5
+        },
+        {
+          "nombre": "Curl martillo",
+          "grupo_muscular": "Bíceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "1",
+          "notas": "Agarre neutro, enfasis en braquial",
+          "youtube_search": "hammer curls technique",
+          "orden": 6
+        }
+      ]
+    },
+    {
+      "nombre": "Legs A",
+      "tipo": "push",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 72,
+      "es_post_partido": true,
+      "orden": 3,
+      "ejercicios": [
+        {
+          "nombre": "Sentadilla",
+          "grupo_muscular": "Cuádriceps",
+          "series": 4,
+          "reps_target": "6-10",
+          "rir_target": "2",
+          "notas": "Profundidad ATG si movilidad permite, rodillas alineadas",
+          "youtube_search": "squat form check",
+          "orden": 1
+        },
+        {
+          "nombre": "Prensa",
+          "grupo_muscular": "Cuádriceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Pies separados, no bloquear rodillas arriba",
+          "youtube_search": "leg press technique",
+          "orden": 2
+        },
+        {
+          "nombre": "Curl femoral",
+          "grupo_muscular": "Isquiotibiales",
+          "series": 3,
+          "reps_target": "10-15",
+          "rir_target": "1-2",
+          "notas": "Control en excentrica, squeeze en contraccion",
+          "youtube_search": "leg curl form",
+          "orden": 3
+        },
+        {
+          "nombre": "Peso muerto rumano",
+          "grupo_muscular": "Isquiotibiales",
+          "series": 3,
+          "reps_target": "8-12",
+          "rir_target": "2",
+          "notas": "Bisagra de cadera, sentir estiramiento en isquios",
+          "youtube_search": "romanian deadlift",
+          "orden": 4
+        },
+        {
+          "nombre": "Elevaciones de gemelos sentado",
+          "grupo_muscular": "Gemelos",
+          "series": 4,
+          "reps_target": "12-15",
+          "rir_target": "1",
+          "notas": "ROM completo, pausa en contraccion",
+          "youtube_search": "seated calf raise",
+          "orden": 5
+        },
+        {
+          "nombre": "Crunch en polea",
+          "grupo_muscular": "Core",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": "1",
+          "notas": "Flexion espinal, no usar cadera",
+          "youtube_search": "cable crunch abs",
+          "orden": 6
+        }
+      ]
+    },
+    {
+      "nombre": "Push B",
+      "tipo": "push",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 4,
+      "ejercicios": [
+        {
+          "nombre": "Press inclinado barra",
+          "grupo_muscular": "Pecho superior",
+          "series": 3,
+          "reps_target": "8-12",
+          "rir_target": "2-3",
+          "notas": "Enfasis en control y conexion mente-musculo",
+          "youtube_search": "incline bench press",
+          "orden": 1
+        },
+        {
+          "nombre": "Aperturas con mancuernas",
+          "grupo_muscular": "Pecho",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "2",
+          "notas": "Codos ligeramente flexionados, sentir estiramiento",
+          "youtube_search": "dumbbell flyes technique",
+          "orden": 2
+        },
+        {
+          "nombre": "Press Arnold",
+          "grupo_muscular": "Hombro",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Rotacion completa, control en todo el ROM",
+          "youtube_search": "arnold press tutorial",
+          "orden": 3
+        },
+        {
+          "nombre": "Elevaciones frontales",
+          "grupo_muscular": "Hombro anterior",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "1-2",
+          "notas": "Sin balanceo, hasta altura de ojos",
+          "youtube_search": "front raises form",
+          "orden": 4
+        },
+        {
+          "nombre": "Press frances",
+          "grupo_muscular": "Tríceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Codos apuntando arriba, solo mover antebrazos",
+          "youtube_search": "skull crushers technique",
+          "orden": 5
+        },
+        {
+          "nombre": "Patada de triceps",
+          "grupo_muscular": "Tríceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "1",
+          "notas": "Extension completa, squeeze al final",
+          "youtube_search": "tricep kickbacks",
+          "orden": 6
+        }
+      ]
+    },
+    {
+      "nombre": "Pull B",
+      "tipo": "pull",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 5,
+      "ejercicios": [
+        {
+          "nombre": "Remo en polea baja",
+          "grupo_muscular": "Espalda media",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2-3",
+          "notas": "Mantener torso estable, tirar hacia abdomen bajo",
+          "youtube_search": "seated cable row",
+          "orden": 1
+        },
+        {
+          "nombre": "Pulldowns",
+          "grupo_muscular": "Espalda alta",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "2",
+          "notas": "Agarre ancho, llevar barra al pecho alto",
+          "youtube_search": "lat pulldown form",
+          "orden": 2
+        },
+        {
+          "nombre": "Remo con mancuerna",
+          "grupo_muscular": "Espalda",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Apoyo en banco, tirar codo hacia atras",
+          "youtube_search": "one arm dumbbell row",
+          "orden": 3
+        },
+        {
+          "nombre": "Reverse flyes",
+          "grupo_muscular": "Hombro posterior",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": "1",
+          "notas": "Ligero bend en codos, squeeze escapulas",
+          "youtube_search": "reverse flyes technique",
+          "orden": 4
+        },
+        {
+          "nombre": "Curl inclinado",
+          "grupo_muscular": "Bíceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Banco a 45 grados, enfasis en estiramiento",
+          "youtube_search": "incline dumbbell curl",
+          "orden": 5
+        },
+        {
+          "nombre": "Curl concentrado",
+          "grupo_muscular": "Bíceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "1",
+          "notas": "Codo apoyado, movimiento lento y controlado",
+          "youtube_search": "concentration curl",
+          "orden": 6
+        }
+      ]
+    },
+    {
+      "nombre": "Legs B",
+      "tipo": "push",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 72,
+      "es_post_partido": true,
+      "orden": 6,
+      "ejercicios": [
+        {
+          "nombre": "Sentadilla bulgara",
+          "grupo_muscular": "Cuádriceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2-3",
+          "notas": "Pie trasero elevado, enfoque en control",
+          "youtube_search": "bulgarian split squat",
+          "orden": 1
+        },
+        {
+          "nombre": "Extensiones de cuadriceps",
+          "grupo_muscular": "Cuádriceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "2",
+          "notas": "Extension completa, squeeze en la cima",
+          "youtube_search": "leg extension form",
+          "orden": 2
+        },
+        {
+          "nombre": "Peso muerto sumo",
+          "grupo_muscular": "Glúteos",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": "2",
+          "notas": "Stance amplio, enfasis en gluteos",
+          "youtube_search": "sumo deadlift tutorial",
+          "orden": 3
+        },
+        {
+          "nombre": "Hip thrust",
+          "grupo_muscular": "Glúteos",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": "2",
+          "notas": "Contraccion maxima arriba, no hiperextender",
+          "youtube_search": "hip thrust technique",
+          "orden": 4
+        },
+        {
+          "nombre": "Elevaciones de gemelos parado",
+          "grupo_muscular": "Gemelos",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": "1",
+          "notas": "ROM completo, diferentes angulos de pies",
+          "youtube_search": "standing calf raise",
+          "orden": 5
+        },
+        {
+          "nombre": "Plancha",
+          "grupo_muscular": "Core",
+          "series": 3,
+          "reps_target": "45-60s",
+          "rir_target": "1",
+          "notas": "Cuerpo recto, core contraido, respiracion normal",
+          "youtube_search": "plank form",
+          "orden": 6
+        }
+      ]
+    }
+  ]
+}
