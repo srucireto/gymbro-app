@@ -46,6 +46,7 @@ export type EstadoSesion =
   | "omitida"
   | "faltada"
   | "recuperada"
+  | "completada"
   | "vuelta_bien"
   | "vuelta_regular"
   | "vuelta_mal"
@@ -56,6 +57,8 @@ export interface EntradaCalendario {
   estado?: EstadoSesion
   advertencia?: string
   dia_original?: DiaSemana  // Para sesiones recuperadas
+  fecha_completada?: string  // Timestamp ISO cuando se completó la sesión
+  fecha_faltada?: string     // Timestamp ISO cuando se faltó a la sesión
 }
 
 export interface SemanaProgramada {
@@ -67,6 +70,8 @@ export interface SemanaProgramada {
   dia_partido: DiaSemana
   dia_futsal: DiaSemana
   calendario: Record<DiaSemana, EntradaCalendario>
+  fecha_inicio_real?: string  // Timestamp cuando se completa la primera sesión
+  fecha_fin_real?: string      // Timestamp cuando se completa la última sesión
 }
 
 // 1 registro por serie (no por ejercicio)
