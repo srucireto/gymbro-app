@@ -15,7 +15,9 @@ interface EstadisticasAusencias {
     cuatroSieteDias: number
     masSieteDias: number
   }
-  tasaRecuperacion: number
+  adherenciaReal: number
+  sesionesCompletadas: number
+  sesionesTotal: number
   ultimaAusencia: Ausencia | null
 }
 
@@ -217,16 +219,21 @@ export default function StatsAusencias() {
           masSieteDias: gruposConsecutivos.filter(g => g > 7).length
         }
 
-        // Tasa de recuperación (basada en ausencias individuales recuperadas)
-        const sesionesRecuperadas = ausencias.filter(a => a.sesion_recuperada)
-        const tasaRecuperacion = ausencias.length > 0
-          ? Math.round((sesionesRecuperadas.length / ausencias.length) * 100)
+        // Calcular adherencia real (sesiones completadas vs programadas)
+        const sesionesCompletadas = eventosExtraidos.filter(e => e.tipo === 'completada').length
+        const sesionesFaltadas = eventosExtraidos.filter(e => e.tipo === 'faltada').length
+        const sesionesTotal = sesionesCompletadas + sesionesFaltadas
+
+        const adherenciaReal = sesionesTotal > 0
+          ? Math.round((sesionesCompletadas / sesionesTotal) * 100)
           : 0
 
         setStats({
           totalAusencias: gruposConsecutivos.length, // Total de períodos de ausencia
           porTipo,
-          tasaRecuperacion,
+          adherenciaReal,
+          sesionesCompletadas,
+          sesionesTotal,
           ultimaAusencia: ausencias[0]
         })
       } catch (error) {
@@ -367,12 +374,12 @@ export default function StatsAusencias() {
           {/* Resumen general */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-muted rounded-lg">
-              <div className="text-3xl font-bold">{stats.totalAusencias}</div>
-              <div className="text-sm text-muted-foreground">Total de ausencias</div>
+              <div className="text-3xl font-bold">{stats.adherenciaReal}%</div>
+              <div className="text-sm text-muted-foreground">Adherencia</div>
             </div>
             <div className="p-4 bg-muted rounded-lg">
-              <div className="text-3xl font-bold">{stats.tasaRecuperacion}%</div>
-              <div className="text-sm text-muted-foreground">Sesiones recuperadas</div>
+              <div className="text-3xl font-bold">{stats.sesionesCompletadas}/{stats.sesionesTotal}</div>
+              <div className="text-sm text-muted-foreground">Sesiones completadas</div>
             </div>
           </div>
 
@@ -409,8 +416,6 @@ export default function StatsAusencias() {
                 {stats.ultimaAusencia.dias_fuera === 2 && '2-3 días'}
                 {stats.ultimaAusencia.dias_fuera === 3 && '4-7 días'}
                 {stats.ultimaAusencia.dias_fuera === 4 && 'Más de 7 días'}
-                {' · '}
-                {stats.ultimaAusencia.sesion_recuperada ? '✓ Recuperada' : 'Pendiente'}
               </AlertDescription>
             </Alert>
           )}
@@ -426,12 +431,12 @@ export default function StatsAusencias() {
             </Alert>
           )}
 
-          {stats.tasaRecuperacion === 100 && stats.porTipo.unDia > 0 && (
+          {stats.adherenciaReal >= 90 && stats.sesionesTotal >= 10 && (
             <Alert className="bg-green-50 border-green-200">
               <TrendingUp className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-sm text-green-900">
-                <strong>¡Excelente!</strong> Has recuperado el 100% de las sesiones de 1 día.
-                Esto muestra gran flexibilidad en tu planificación.
+                <strong>¡Excelente!</strong> Mantienes {stats.adherenciaReal}% de adherencia.
+                Tu consistencia está impulsando tu progreso.
               </AlertDescription>
             </Alert>
           )}
