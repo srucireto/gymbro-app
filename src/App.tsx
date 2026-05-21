@@ -7,6 +7,7 @@ import DeloadPage from './pages/DeloadPage'
 import StatsPage from './pages/StatsPage'
 import LoginPage from './pages/LoginPage'
 import RegistroPage from './pages/RegistroPage'
+import DebugUserPage from './pages/DebugUserPage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/rutinas" element={<ProtectedRoute><RutinasPage /></ProtectedRoute>} />
         <Route path="/deload" element={<ProtectedRoute><DeloadPage /></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><StatsPage /></ProtectedRoute>} />
+        <Route path="/debug-user" element={<ProtectedRoute><DebugUserPage /></ProtectedRoute>} />
       </Routes>
     </Router>
   )

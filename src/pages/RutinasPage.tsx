@@ -14,31 +14,46 @@ export default function RutinasPage() {
   const [loading, setLoading] = useState(true)
   const [cargando, setCargando] = useState(false)
   const [mostrarJSON, setMostrarJSON] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<string[]>([])
 
   useEffect(() => {
     fetchRutinas()
   }, [])
 
   async function fetchRutinas() {
+    const logs: string[] = []
     try {
       const { data: { user } } = await supabase.auth.getUser()
+      logs.push(`🔍 User: ${user?.email} | ID: ${user?.id?.substring(0, 8)}...`)
+
       if (!user) {
+        logs.push('❌ No user found')
+        setDebugInfo(logs)
         setRutinas([])
         setLoading(false)
         return
       }
 
+      logs.push(`🔍 Fetching rutinas for user_id: ${user.id.substring(0, 8)}...`)
       const { data, error } = await supabase
         .from('rutinas')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      logs.push(`📋 Response: ${data?.length || 0} rutinas, error: ${error ? 'YES' : 'NO'}`)
+
+      if (error) {
+        logs.push(`❌ Error: ${JSON.stringify(error)}`)
+        throw error
+      }
+
       setRutinas(data || [])
+      logs.push(`✅ Rutinas loaded: ${data?.length || 0}`)
     } catch (error) {
-      console.error('Error fetching rutinas:', error)
+      logs.push(`❌ Catch error: ${error instanceof Error ? error.message : String(error)}`)
     } finally {
+      setDebugInfo(logs)
       setLoading(false)
     }
   }
@@ -88,6 +103,29 @@ export default function RutinasPage() {
     } catch (error) {
       console.error('Error eliminando rutina:', error)
       alert('Error al eliminar rutina')
+    }
+  }
+
+  async function asignarMesocicloAMiUsuario() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        alert('No hay usuario autenticado')
+        return
+      }
+
+      const { error } = await supabase
+        .from('rutinas')
+        .update({ user_id: user.id })
+        .ilike('nombre', '%mesociclo%')
+
+      if (error) throw error
+
+      alert('Mesociclo 1 asignado correctamente')
+      fetchRutinas()
+    } catch (error) {
+      console.error('Error asignando mesociclo:', error)
+      alert('Error: ' + (error instanceof Error ? error.message : String(error)))
     }
   }
 
@@ -411,6 +449,36 @@ export default function RutinasPage() {
               <span className="font-semibold">Rutina activa:</span> {rutinaActiva.nombre}
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* Debug Info */}
+        {debugInfo.length > 0 && (
+          <Card className="mt-6 border-2 border-orange-500">
+            <CardHeader>
+              <CardTitle className="text-sm">🔍 Debug Info</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 font-mono text-xs">
+                {debugInfo.map((log, i) => (
+                  <div key={i} className="text-gray-700">{log}</div>
+                ))}
+              </div>
+              {rutinas.length === 0 && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Si tienes Mesociclo 1 pero no aparece aquí, haz clic para asignarlo a tu usuario:
+                  </p>
+                  <Button
+                    onClick={asignarMesocicloAMiUsuario}
+                    size="sm"
+                    className="w-full"
+                  >
+                    🔧 Asignar Mesociclo 1 a mi usuario
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

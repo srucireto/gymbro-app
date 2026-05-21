@@ -368,6 +368,20 @@ export default function SesionDetailPage() {
   }
 
   const handleCompletarSesion = () => {
+    // Verificar si hay AL MENOS un set con datos
+    const hayAlgunSetConDatos = ejercicios.some(ejercicio => {
+      const seriesTracking = tracking[ejercicio.id] || []
+      return seriesTracking.some(serie =>
+        serie.peso !== null && serie.peso !== undefined &&
+        serie.reps !== null && serie.reps !== undefined
+      )
+    })
+
+    if (!hayAlgunSetConDatos) {
+      alert('Debes completar al menos un set antes de finalizar la sesión. Si no pudiste entrenar hoy, márcala como faltada desde el calendario.')
+      return
+    }
+
     // Verificar qué ejercicios están incompletos
     const incompletos = ejercicios.filter(ejercicio => {
       const seriesTracking = tracking[ejercicio.id] || []
