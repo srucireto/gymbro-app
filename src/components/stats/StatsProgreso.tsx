@@ -192,7 +192,7 @@ export default function StatsProgreso() {
     if (gruposOrdenados.length > 0 && !grupoActivo) {
       setGrupoActivo(gruposOrdenados[0])
     }
-  }, [gruposOrdenados, grupoActivo])
+  }, [ejercicios.length]) // Usar la longitud de ejercicios como dependencia
 
   return (
     <div className="space-y-4">
