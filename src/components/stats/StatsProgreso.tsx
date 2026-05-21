@@ -12,7 +12,7 @@ interface EjercicioProgreso {
     fechaInicio: string
     pesoPromedio: number
     repsPromedio: number
-    volumenTotal: number // peso × reps total
+    volumenTotal: number
   }[]
 }
 
@@ -30,7 +30,6 @@ export default function StatsProgreso() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Obtener tracking agrupado por ejercicio y semana
       const { data: trackingData, error } = await supabase
         .from('tracking')
         .select(`
@@ -43,7 +42,6 @@ export default function StatsProgreso() {
 
       if (error) throw error
 
-      // Agrupar por ejercicio y calcular promedios por semana
       const ejerciciosMap = new Map<string, EjercicioProgreso>()
 
       trackingData?.forEach((t: any) => {
@@ -76,7 +74,6 @@ export default function StatsProgreso() {
           ejercicio.datosProgreso.push(datoSemana)
         }
 
-        // Acumular para calcular promedio
         const count = ejercicio.datosProgreso.filter(
           d => d.semanaNumero === t.semana.semana_numero
         ).length
@@ -86,7 +83,6 @@ export default function StatsProgreso() {
         datoSemana.volumenTotal += Number(t.peso) * t.reps
       })
 
-      // Ordenar progreso por semana
       const ejerciciosList = Array.from(ejerciciosMap.values()).map(ej => ({
         ...ej,
         datosProgreso: ej.datosProgreso.sort((a, b) => a.semanaNumero - b.semanaNumero)
@@ -112,6 +108,21 @@ export default function StatsProgreso() {
       tipo: cambio > 0 ? 'subiendo' : 'bajando',
       porcentaje: Math.abs(cambio)
     }
+  }
+
+  function normalizarGrupo(grupo: string): string {
+    const grupoLower = grupo.toLowerCase()
+    if (grupoLower.includes('hombro')) return 'hombros'
+    if (grupoLower.includes('espalda')) return 'espalda'
+    if (grupoLower.includes('pecho')) return 'pecho'
+    if (grupoLower.includes('bíceps') || grupoLower.includes('biceps')) return 'bíceps'
+    if (grupoLower.includes('tríceps') || grupoLower.includes('triceps')) return 'tríceps'
+    if (grupoLower.includes('trapecio')) return 'trapecio'
+    if (grupoLower.includes('cuádriceps') || grupoLower.includes('cuadriceps')) return 'cuádriceps'
+    if (grupoLower.includes('isquio')) return 'isquiotibiales'
+    if (grupoLower.includes('gemelo')) return 'gemelos'
+    if (grupoLower.includes('glúteo') || grupoLower.includes('gluteo')) return 'glúteos'
+    return grupo.toLowerCase()
   }
 
   if (loading) {
@@ -146,35 +157,6 @@ export default function StatsProgreso() {
     )
   }
 
-  // Normalizar grupos musculares a categorías principales
-  const normalizarGrupo = (grupo: string): string => {
-    const grupoLower = grupo.toLowerCase()
-
-    // Agrupar todos los tipos de hombros
-    if (grupoLower.includes('hombro')) return 'hombros'
-
-    // Agrupar todos los tipos de espalda
-    if (grupoLower.includes('espalda')) return 'espalda'
-
-    // Agrupar todos los tipos de pecho
-    if (grupoLower.includes('pecho')) return 'pecho'
-
-    // Agrupar todos los tipos de bíceps
-    if (grupoLower.includes('bíceps') || grupoLower.includes('biceps')) return 'bíceps'
-
-    // Agrupar todos los tipos de tríceps
-    if (grupoLower.includes('tríceps') || grupoLower.includes('triceps')) return 'tríceps'
-
-    // Otros grupos comunes
-    if (grupoLower.includes('trapecio')) return 'trapecio'
-    if (grupoLower.includes('cuádriceps') || grupoLower.includes('cuadriceps')) return 'cuádriceps'
-    if (grupoLower.includes('isquio')) return 'isquiotibiales'
-    if (grupoLower.includes('gemelo')) return 'gemelos'
-    if (grupoLower.includes('glúteo') || grupoLower.includes('gluteo')) return 'glúteos'
-
-    return grupo.toLowerCase()
-  }
-
   // Agrupar ejercicios por grupo muscular normalizado
   const ejerciciosPorGrupo = ejercicios.reduce((acc, ej) => {
     const grupo = normalizarGrupo(ej.grupoMuscular)
@@ -187,12 +169,10 @@ export default function StatsProgreso() {
 
   const gruposOrdenados = Object.keys(ejerciciosPorGrupo).sort()
 
-  // Establecer el primer grupo como activo cuando carguen los datos
-  useEffect(() => {
-    if (gruposOrdenados.length > 0 && !grupoActivo) {
-      setGrupoActivo(gruposOrdenados[0])
-    }
-  }, [ejercicios.length]) // Usar la longitud de ejercicios como dependencia
+  // Establecer el primer grupo como activo si aún no hay uno seleccionado
+  if (!grupoActivo && gruposOrdenados.length > 0) {
+    setGrupoActivo(gruposOrdenados[0])
+  }
 
   return (
     <div className="space-y-4">
@@ -204,7 +184,7 @@ export default function StatsProgreso() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Leyenda explicativa - una sola vez */}
+          {/* Leyenda explicativa */}
           <div className="p-3 bg-muted/30 rounded-lg">
             <div className="text-xs font-medium mb-2 text-muted-foreground">Guía del gráfico:</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -263,159 +243,150 @@ export default function StatsProgreso() {
         </CardContent>
       </Card>
 
-      {/* Ejercicios agrupados por músculo con anchors */}
+      {/* Ejercicios agrupados por músculo */}
       {gruposOrdenados.map(grupoMuscular => (
         <div
           key={grupoMuscular}
           id={`grupo-${grupoMuscular}`}
           className="space-y-3 scroll-mt-20"
         >
-          {/* Título del grupo muscular */}
           <div className="px-2">
             <h3 className="text-sm font-semibold capitalize text-primary">
               {grupoMuscular}
             </h3>
           </div>
 
-          {/* Ejercicios del grupo */}
           {ejerciciosPorGrupo[grupoMuscular].map(ej => {
-        const tendencia = calcularTendencia(ej.datosProgreso)
-        const ultimosDatos = ej.datosProgreso // Todas las semanas del ciclo
+            const tendencia = calcularTendencia(ej.datosProgreso)
+            const ultimosDatos = ej.datosProgreso
 
-        return (
-          <Card key={ej.ejercicioId}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-base">{ej.ejercicioNombre}</CardTitle>
-                  <CardDescription className="text-xs capitalize">
-                    {ej.grupoMuscular}
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-1 text-sm">
-                  {tendencia.tipo === 'subiendo' && (
-                    <>
-                      <TrendingUp className="h-4 w-4 text-green-600" />
-                      <span className="text-green-600 font-medium">+{tendencia.porcentaje.toFixed(1)}%</span>
-                    </>
-                  )}
-                  {tendencia.tipo === 'bajando' && (
-                    <>
-                      <TrendingDown className="h-4 w-4 text-red-600" />
-                      <span className="text-red-600 font-medium">-{tendencia.porcentaje.toFixed(1)}%</span>
-                    </>
-                  )}
-                  {tendencia.tipo === 'neutral' && (
-                    <>
-                      <Minus className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400 font-medium">~</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Gráfico de línea de tendencia con scroll */}
-              <div className="space-y-3">
-                {/* Contenedor scrollable - solo horizontal */}
-                <div className="overflow-x-auto overflow-y-hidden pb-2">
-                  <div
-                    className="relative h-40 bg-muted/10 rounded-lg p-4"
-                    style={{ minWidth: `${Math.max(ultimosDatos.length * 60, 320)}px` }}
-                  >
-                    {/* Líneas de guía horizontales */}
-                    <div className="absolute inset-x-4 top-4 h-full flex flex-col justify-between pb-8">
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <div key={i} className="border-b border-muted/30" />
-                      ))}
+            return (
+              <Card key={ej.ejercicioId}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-base">{ej.ejercicioNombre}</CardTitle>
+                      <CardDescription className="text-xs capitalize">
+                        {ej.grupoMuscular}
+                      </CardDescription>
                     </div>
+                    <div className="flex items-center gap-1 text-sm">
+                      {tendencia.tipo === 'subiendo' && (
+                        <>
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                          <span className="text-green-600 font-medium">+{tendencia.porcentaje.toFixed(1)}%</span>
+                        </>
+                      )}
+                      {tendencia.tipo === 'bajando' && (
+                        <>
+                          <TrendingDown className="h-4 w-4 text-red-600" />
+                          <span className="text-red-600 font-medium">-{tendencia.porcentaje.toFixed(1)}%</span>
+                        </>
+                      )}
+                      {tendencia.tipo === 'neutral' && (
+                        <>
+                          <Minus className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-400 font-medium">~</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="overflow-x-auto overflow-y-hidden pb-2">
+                      <div
+                        className="relative h-40 bg-muted/10 rounded-lg p-4"
+                        style={{ minWidth: `${Math.max(ultimosDatos.length * 60, 320)}px` }}
+                      >
+                        <div className="absolute inset-x-4 top-4 h-full flex flex-col justify-between pb-8">
+                          {[0, 1, 2, 3, 4].map((i) => (
+                            <div key={i} className="border-b border-muted/30" />
+                          ))}
+                        </div>
 
-                    {/* SVG para la línea de tendencia */}
-                    <svg className="absolute inset-x-4 top-4 bottom-8 w-[calc(100%-2rem)]" preserveAspectRatio="none">
-                      {(() => {
-                        const maxPeso = Math.max(...ultimosDatos.map(d => d.pesoPromedio))
-                        const minPeso = Math.min(...ultimosDatos.map(d => d.pesoPromedio))
-                        const range = maxPeso - minPeso || 1
-                        const padding = range * 0.1
+                        <svg className="absolute inset-x-4 top-4 bottom-8 w-[calc(100%-2rem)]" preserveAspectRatio="none">
+                          {(() => {
+                            const maxPeso = Math.max(...ultimosDatos.map(d => d.pesoPromedio))
+                            const minPeso = Math.min(...ultimosDatos.map(d => d.pesoPromedio))
+                            const range = maxPeso - minPeso || 1
+                            const padding = range * 0.1
 
-                        const points = ultimosDatos.map((dato, index) => {
-                          const x = (index / (ultimosDatos.length - 1)) * 100
-                          const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
-                          const y = 100 - normalizedY
-                          return `${x},${y}`
-                        }).join(' ')
-
-                        const pathD = ultimosDatos.map((dato, index) => {
-                          const x = (index / (ultimosDatos.length - 1)) * 100
-                          const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
-                          const y = 100 - normalizedY
-                          return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`
-                        }).join(' ')
-
-                        const areaPathD = `${pathD} L 100 100 L 0 100 Z`
-
-                        return (
-                          <>
-                            {/* Área bajo la línea */}
-                            <path
-                              d={areaPathD}
-                              fill="hsl(var(--primary))"
-                              fillOpacity="0.1"
-                            />
-                            {/* Línea de tendencia - más gruesa para continuidad */}
-                            <polyline
-                              points={points}
-                              fill="none"
-                              stroke="hsl(var(--primary))"
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            {/* Puntos en cada semana - más pequeños para no interrumpir la línea */}
-                            {ultimosDatos.map((dato, index) => {
+                            const points = ultimosDatos.map((dato, index) => {
                               const x = (index / (ultimosDatos.length - 1)) * 100
                               const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
                               const y = 100 - normalizedY
-                              return (
-                                <circle
-                                  key={index}
-                                  cx={`${x}%`}
-                                  cy={`${y}%`}
-                                  r="3"
-                                  fill="hsl(var(--primary))"
-                                  stroke="hsl(var(--background))"
-                                  strokeWidth="1.5"
-                                />
-                              )
-                            })}
-                          </>
-                        )
-                      })()}
-                    </svg>
+                              return `${x},${y}`
+                            }).join(' ')
 
-                    {/* Labels en el eje X */}
-                    <div className="absolute inset-x-4 bottom-0 flex justify-between">
-                      {ultimosDatos.map((dato, index) => (
-                        <div key={index} className="flex flex-col items-center gap-1" style={{ minWidth: '50px' }}>
-                          <div className="text-xs font-bold">
-                            {dato.pesoPromedio.toFixed(1)}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-medium">
-                            S{dato.semanaNumero}
-                          </div>
+                            const pathD = ultimosDatos.map((dato, index) => {
+                              const x = (index / (ultimosDatos.length - 1)) * 100
+                              const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
+                              const y = 100 - normalizedY
+                              return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`
+                            }).join(' ')
+
+                            const areaPathD = `${pathD} L 100 100 L 0 100 Z`
+
+                            return (
+                              <>
+                                <path
+                                  d={areaPathD}
+                                  fill="hsl(var(--primary))"
+                                  fillOpacity="0.1"
+                                />
+                                <polyline
+                                  points={points}
+                                  fill="none"
+                                  stroke="hsl(var(--primary))"
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                {ultimosDatos.map((dato, index) => {
+                                  const x = (index / (ultimosDatos.length - 1)) * 100
+                                  const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
+                                  const y = 100 - normalizedY
+                                  return (
+                                    <circle
+                                      key={index}
+                                      cx={`${x}%`}
+                                      cy={`${y}%`}
+                                      r="3"
+                                      fill="hsl(var(--primary))"
+                                      stroke="hsl(var(--background))"
+                                      strokeWidth="1.5"
+                                    />
+                                  )
+                                })}
+                              </>
+                            )
+                          })()}
+                        </svg>
+
+                        <div className="absolute inset-x-4 bottom-0 flex justify-between">
+                          {ultimosDatos.map((dato, index) => (
+                            <div key={index} className="flex flex-col items-center gap-1" style={{ minWidth: '50px' }}>
+                              <div className="text-xs font-bold">
+                                {dato.pesoPromedio.toFixed(1)}
+                              </div>
+                              <div className="text-xs text-muted-foreground font-medium">
+                                S{dato.semanaNumero}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t text-xs text-muted-foreground text-center">
+                      {ultimosDatos[ultimosDatos.length - 1].repsPromedio.toFixed(1)} reps promedio · {ultimosDatos[ultimosDatos.length - 1].volumenTotal.toFixed(0)} kg total · {ultimosDatos.length} semanas
                     </div>
                   </div>
-                </div>
-
-                <div className="pt-2 border-t text-xs text-muted-foreground text-center">
-                  {ultimosDatos[ultimosDatos.length - 1].repsPromedio.toFixed(1)} reps promedio · {ultimosDatos[ultimosDatos.length - 1].volumenTotal.toFixed(0)} kg total · {ultimosDatos.length} semanas
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )})}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       ))}
     </div>
