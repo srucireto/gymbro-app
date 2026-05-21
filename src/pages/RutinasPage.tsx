@@ -21,9 +21,17 @@ export default function RutinasPage() {
 
   async function fetchRutinas() {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setRutinas([])
+        setLoading(false)
+        return
+      }
+
       const { data, error } = await supabase
         .from('rutinas')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
