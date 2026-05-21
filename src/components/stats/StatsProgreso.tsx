@@ -19,6 +19,7 @@ interface EjercicioProgreso {
 export default function StatsProgreso() {
   const [ejercicios, setEjercicios] = useState<EjercicioProgreso[]>([])
   const [loading, setLoading] = useState(true)
+  const [grupoActivo, setGrupoActivo] = useState<string>('')
 
   useEffect(() => {
     fetchProgreso()
@@ -185,7 +186,13 @@ export default function StatsProgreso() {
   }, {} as Record<string, typeof ejercicios>)
 
   const gruposOrdenados = Object.keys(ejerciciosPorGrupo).sort()
-  const [grupoActivo, setGrupoActivo] = useState<string>(gruposOrdenados[0] || '')
+
+  // Establecer el primer grupo como activo cuando carguen los datos
+  useEffect(() => {
+    if (gruposOrdenados.length > 0 && !grupoActivo) {
+      setGrupoActivo(gruposOrdenados[0])
+    }
+  }, [gruposOrdenados, grupoActivo])
 
   return (
     <div className="space-y-4">
