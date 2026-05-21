@@ -218,7 +218,12 @@ export default function HomePage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-md">
-          <h1 className="text-2xl font-bold mb-6">GymBro</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">GymBro</h1>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
           <Alert>
             <AlertDescription>
               No hay ninguna rutina activa configurada.
