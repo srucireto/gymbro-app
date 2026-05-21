@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Trash2, Copy, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function RutinasPage() {
   const navigate = useNavigate()
   const [rutinas, setRutinas] = useState<Rutina[]>([])
   const [loading, setLoading] = useState(true)
   const [cargando, setCargando] = useState(false)
+  const [mostrarJSON, setMostrarJSON] = useState(false)
 
   useEffect(() => {
     fetchRutinas()
@@ -58,6 +60,69 @@ export default function RutinasPage() {
       console.error('Error activando rutina:', error)
       alert('Error al activar rutina')
     }
+  }
+
+  async function eliminarRutina(rutinaId: string, nombre: string) {
+    if (!confirm(`¿Estás seguro de eliminar la rutina "${nombre}"? Esta acción no se puede deshacer.`)) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('rutinas')
+        .delete()
+        .eq('id', rutinaId)
+
+      if (error) throw error
+
+      fetchRutinas()
+      alert('Rutina eliminada correctamente')
+    } catch (error) {
+      console.error('Error eliminando rutina:', error)
+      alert('Error al eliminar rutina')
+    }
+  }
+
+  function copiarJSON() {
+    const templateJSON = {
+      "nombre": "Nombre de tu rutina",
+      "semanas_duracion": 6,
+      "activa": true,
+      "sesiones": [
+        {
+          "nombre": "Push A",
+          "tipo": "push",
+          "intensidad": "pesada",
+          "buffer_minimo_horas": 48,
+          "es_post_partido": false,
+          "orden": 1,
+          "ejercicios": [
+            {
+              "nombre": "Press banca",
+              "grupo_muscular": "Pecho",
+              "series": 4,
+              "reps_target": "6-8",
+              "rir_target": "1-2",
+              "notas": "Activar escapulas, mantener tension",
+              "youtube_search": "press banca tecnica",
+              "orden": 1
+            }
+          ]
+        }
+      ]
+    }
+
+    navigator.clipboard.writeText(JSON.stringify(templateJSON, null, 2))
+    alert('JSON copiado al portapapeles')
+  }
+
+  function formatearFecha(fecha: string): string {
+    const date = new Date(fecha)
+    return date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
   }
 
   async function handleCargarJSON(e: React.ChangeEvent<HTMLInputElement>) {
@@ -172,11 +237,89 @@ export default function RutinasPage() {
           </p>
         </div>
 
+        {/* JSON Base Template */}
+        <Card className="mb-6 border-blue-200 bg-blue-50/50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">📋 JSON Base</CardTitle>
+                <CardDescription>
+                  Template para crear rutinas con cualquier IA
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMostrarJSON(!mostrarJSON)}
+              >
+                {mostrarJSON ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </div>
+          </CardHeader>
+          {mostrarJSON && (
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Usa este formato JSON para que una IA (ChatGPT, Claude, Gemini) te genere rutinas personalizadas.
+                Copia el template y pídele que cree una rutina siguiendo esta estructura.
+              </p>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={copiarJSON}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copiar template
+                </Button>
+              </div>
+
+              <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs">
+                <pre>{JSON.stringify({
+                  "nombre": "Nombre de tu rutina",
+                  "semanas_duracion": 6,
+                  "activa": true,
+                  "sesiones": [
+                    {
+                      "nombre": "Push A",
+                      "tipo": "push",
+                      "intensidad": "pesada",
+                      "buffer_minimo_horas": 48,
+                      "es_post_partido": false,
+                      "orden": 1,
+                      "ejercicios": [
+                        {
+                          "nombre": "Press banca",
+                          "grupo_muscular": "Pecho",
+                          "series": 4,
+                          "reps_target": "6-8",
+                          "rir_target": "1-2",
+                          "notas": "Activar escapulas",
+                          "youtube_search": "press banca tecnica",
+                          "orden": 1
+                        }
+                      ]
+                    }
+                  ]
+                }, null, 2)}</pre>
+              </div>
+
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="text-sm text-blue-900">
+                  <strong>Campos requeridos:</strong> nombre, semanas_duracion, tipo (push/pull),
+                  intensidad (pesada/liviana), grupo_muscular, series, reps_target, rir_target
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          )}
+        </Card>
+
         {/* Cargar nueva rutina */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-lg">Cargar nueva rutina</CardTitle>
-            <CardDescription>Importa un archivo JSON con tu rutina</CardDescription>
+            <CardDescription>Importa el archivo JSON generado por la IA</CardDescription>
           </CardHeader>
           <CardContent>
             <label className="block">
@@ -212,9 +355,9 @@ export default function RutinasPage() {
                 className={rutina.activa ? 'border-2 border-primary' : ''}
               >
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <CardTitle className="text-lg">
                           {rutina.nombre}
                         </CardTitle>
@@ -222,18 +365,31 @@ export default function RutinasPage() {
                           <Badge variant="default">ACTIVA</Badge>
                         )}
                       </div>
-                      <CardDescription>
-                        {rutina.semanas_duracion} semanas de duración
+                      <CardDescription className="space-y-1">
+                        <div>{rutina.semanas_duracion} semanas de duración</div>
+                        <div className="text-xs">
+                          Creada: {formatearFecha(rutina.created_at || rutina.fecha_inicio)}
+                        </div>
                       </CardDescription>
                     </div>
-                    {!rutina.activa && (
+                    <div className="flex gap-2 flex-shrink-0">
+                      {!rutina.activa && (
+                        <Button
+                          onClick={() => activarRutina(rutina.id)}
+                          size="sm"
+                        >
+                          Activar
+                        </Button>
+                      )}
                       <Button
-                        onClick={() => activarRutina(rutina.id)}
+                        onClick={() => eliminarRutina(rutina.id, rutina.nombre)}
                         size="sm"
+                        variant="ghost"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        Activar
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    )}
+                    </div>
                   </div>
                 </CardHeader>
               </Card>
