@@ -297,21 +297,21 @@ export default function StatsProgreso() {
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-0.5 bg-primary"></div>
-                      <span className="text-muted-foreground">Línea de tendencia</span>
+                      <span className="text-muted-foreground">Progresión de peso</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-primary border border-background"></div>
-                      <span className="text-muted-foreground">Punto semanal</span>
+                      <span className="text-muted-foreground">Peso de cada semana</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-4 bg-primary/10 border-b-2 border-primary"></div>
-                      <span className="text-muted-foreground">Área de progreso</span>
+                      <span className="text-muted-foreground">Zona de progreso</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                         <path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"/>
                       </svg>
-                      <span className="text-muted-foreground">Desliza horizontal</span>
+                      <span className="text-muted-foreground">Arrastra para ver más</span>
                     </div>
                   </div>
                 </div>
