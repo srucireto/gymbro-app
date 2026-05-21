@@ -193,31 +193,92 @@ export default function StatsProgreso() {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Gráfico de barras vertical */}
+              {/* Gráfico de línea de tendencia */}
               <div className="space-y-3">
-                <div className="flex items-end justify-between gap-2 h-40 bg-muted/20 rounded-lg p-2">
-                  {ultimosDatos.map((dato, index) => {
-                    const maxPeso = Math.max(...ultimosDatos.map(d => d.pesoPromedio))
-                    const altura = Math.max((dato.pesoPromedio / maxPeso) * 100, 10) // Mínimo 10%
+                <div className="relative h-40 bg-muted/10 rounded-lg p-4">
+                  {/* Líneas de guía horizontales */}
+                  <div className="absolute inset-x-4 top-4 h-full flex flex-col justify-between pb-8">
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <div key={i} className="border-b border-muted/30" />
+                    ))}
+                  </div>
 
-                    return (
-                      <div key={`${dato.semanaNumero}-${index}`} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="text-xs font-bold text-center">
+                  {/* SVG para la línea de tendencia */}
+                  <svg className="absolute inset-x-4 top-4 bottom-8 w-[calc(100%-2rem)]" preserveAspectRatio="none">
+                    {(() => {
+                      const maxPeso = Math.max(...ultimosDatos.map(d => d.pesoPromedio))
+                      const minPeso = Math.min(...ultimosDatos.map(d => d.pesoPromedio))
+                      const range = maxPeso - minPeso || 1
+                      const padding = range * 0.1
+
+                      const points = ultimosDatos.map((dato, index) => {
+                        const x = (index / (ultimosDatos.length - 1)) * 100
+                        const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
+                        const y = 100 - normalizedY
+                        return `${x},${y}`
+                      }).join(' ')
+
+                      const pathD = ultimosDatos.map((dato, index) => {
+                        const x = (index / (ultimosDatos.length - 1)) * 100
+                        const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
+                        const y = 100 - normalizedY
+                        return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`
+                      }).join(' ')
+
+                      const areaPathD = `${pathD} L 100 100 L 0 100 Z`
+
+                      return (
+                        <>
+                          {/* Área bajo la línea */}
+                          <path
+                            d={areaPathD}
+                            fill="hsl(var(--primary))"
+                            fillOpacity="0.1"
+                          />
+                          {/* Línea de tendencia */}
+                          <polyline
+                            points={points}
+                            fill="none"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          {/* Puntos en cada semana */}
+                          {ultimosDatos.map((dato, index) => {
+                            const x = (index / (ultimosDatos.length - 1)) * 100
+                            const normalizedY = ((dato.pesoPromedio - minPeso + padding) / (range + 2 * padding)) * 100
+                            const y = 100 - normalizedY
+                            return (
+                              <circle
+                                key={index}
+                                cx={`${x}%`}
+                                cy={`${y}%`}
+                                r="4"
+                                fill="hsl(var(--background))"
+                                stroke="hsl(var(--primary))"
+                                strokeWidth="2.5"
+                              />
+                            )
+                          })}
+                        </>
+                      )
+                    })()}
+                  </svg>
+
+                  {/* Labels en el eje X */}
+                  <div className="absolute inset-x-4 bottom-0 flex justify-between">
+                    {ultimosDatos.map((dato, index) => (
+                      <div key={index} className="flex flex-col items-center gap-1">
+                        <div className="text-xs font-bold">
                           {dato.pesoPromedio.toFixed(1)}
                         </div>
-                        <div
-                          className="w-full bg-primary border-2 border-primary/20 rounded-t shadow-sm transition-all hover:opacity-80"
-                          style={{
-                            height: `${altura}%`,
-                            minHeight: '20px'
-                          }}
-                        />
-                        <div className="text-xs text-muted-foreground text-center font-medium">
+                        <div className="text-xs text-muted-foreground font-medium">
                           S{dato.semanaNumero}
                         </div>
                       </div>
-                    )
-                  })}
+                    ))}
+                  </div>
                 </div>
 
                 <div className="pt-2 border-t text-xs text-muted-foreground text-center">
