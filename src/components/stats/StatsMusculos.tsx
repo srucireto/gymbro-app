@@ -21,6 +21,23 @@ export default function StatsMusculos() {
     fetchVolumenes()
   }, [])
 
+  function normalizarGrupo(grupo: string): string {
+    const grupoLower = grupo.toLowerCase()
+    if (grupoLower.includes('hombro')) return 'hombros'
+    if (grupoLower.includes('espalda')) return 'espalda'
+    if (grupoLower.includes('pecho')) return 'pecho'
+    if (grupoLower.includes('bíceps') || grupoLower.includes('biceps')) return 'bíceps'
+    if (grupoLower.includes('tríceps') || grupoLower.includes('triceps')) return 'tríceps'
+    if (grupoLower.includes('trapecio')) return 'trapecio'
+    if (grupoLower.includes('cuádriceps') || grupoLower.includes('cuadriceps')) return 'cuádriceps'
+    if (grupoLower.includes('isquio')) return 'isquiotibiales'
+    if (grupoLower.includes('gemelo')) return 'gemelos'
+    if (grupoLower.includes('glúteo') || grupoLower.includes('gluteo')) return 'glúteos'
+    if (grupoLower.includes('abdomen') || grupoLower.includes('core')) return 'core'
+    if (grupoLower.includes('antebrazo')) return 'antebrazos'
+    return grupo.toLowerCase()
+  }
+
   async function fetchVolumenes() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -51,16 +68,17 @@ export default function StatsMusculos() {
 
       if (error) throw error
 
-      // Agrupar por grupo muscular
+      // Agrupar por grupo muscular NORMALIZADO
       const musculosMap = new Map<string, VolumenMuscular>()
 
       trackingData?.forEach((t: any) => {
         if (!t.ejercicio) return
 
-        const grupo = t.ejercicio.grupo_muscular
-        if (!musculosMap.has(grupo)) {
-          musculosMap.set(grupo, {
-            grupoMuscular: grupo,
+        const grupoNormalizado = normalizarGrupo(t.ejercicio.grupo_muscular)
+
+        if (!musculosMap.has(grupoNormalizado)) {
+          musculosMap.set(grupoNormalizado, {
+            grupoMuscular: grupoNormalizado,
             series: 0,
             repeticiones: 0,
             volumenTotal: 0,
@@ -68,7 +86,7 @@ export default function StatsMusculos() {
           })
         }
 
-        const musculo = musculosMap.get(grupo)!
+        const musculo = musculosMap.get(grupoNormalizado)!
         musculo.series += 1
         musculo.repeticiones += t.reps
         musculo.volumenTotal += Number(t.peso) * t.reps
@@ -79,8 +97,9 @@ export default function StatsMusculos() {
         }
       })
 
+      // Ordenar alfabéticamente por nombre del grupo
       const volumenesList = Array.from(musculosMap.values()).sort(
-        (a, b) => b.volumenTotal - a.volumenTotal
+        (a, b) => a.grupoMuscular.localeCompare(b.grupoMuscular)
       )
 
       setVolumenes(volumenesList)
