@@ -145,9 +145,38 @@ export default function StatsProgreso() {
     )
   }
 
-  // Agrupar ejercicios por grupo muscular
+  // Normalizar grupos musculares a categorías principales
+  const normalizarGrupo = (grupo: string): string => {
+    const grupoLower = grupo.toLowerCase()
+
+    // Agrupar todos los tipos de hombros
+    if (grupoLower.includes('hombro')) return 'hombros'
+
+    // Agrupar todos los tipos de espalda
+    if (grupoLower.includes('espalda')) return 'espalda'
+
+    // Agrupar todos los tipos de pecho
+    if (grupoLower.includes('pecho')) return 'pecho'
+
+    // Agrupar todos los tipos de bíceps
+    if (grupoLower.includes('bíceps') || grupoLower.includes('biceps')) return 'bíceps'
+
+    // Agrupar todos los tipos de tríceps
+    if (grupoLower.includes('tríceps') || grupoLower.includes('triceps')) return 'tríceps'
+
+    // Otros grupos comunes
+    if (grupoLower.includes('trapecio')) return 'trapecio'
+    if (grupoLower.includes('cuádriceps') || grupoLower.includes('cuadriceps')) return 'cuádriceps'
+    if (grupoLower.includes('isquio')) return 'isquiotibiales'
+    if (grupoLower.includes('gemelo')) return 'gemelos'
+    if (grupoLower.includes('glúteo') || grupoLower.includes('gluteo')) return 'glúteos'
+
+    return grupo.toLowerCase()
+  }
+
+  // Agrupar ejercicios por grupo muscular normalizado
   const ejerciciosPorGrupo = ejercicios.reduce((acc, ej) => {
-    const grupo = ej.grupoMuscular
+    const grupo = normalizarGrupo(ej.grupoMuscular)
     if (!acc[grupo]) {
       acc[grupo] = []
     }
@@ -156,6 +185,7 @@ export default function StatsProgreso() {
   }, {} as Record<string, typeof ejercicios>)
 
   const gruposOrdenados = Object.keys(ejerciciosPorGrupo).sort()
+  const [grupoActivo, setGrupoActivo] = useState<string>(gruposOrdenados[0] || '')
 
   return (
     <div className="space-y-4">
@@ -194,9 +224,45 @@ export default function StatsProgreso() {
         </CardContent>
       </Card>
 
-      {/* Ejercicios agrupados por músculo */}
+      {/* Tabs navegables por músculo */}
+      <Card className="sticky top-0 z-10 shadow-md">
+        <CardContent className="p-2">
+          <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-thin">
+            {gruposOrdenados.map(grupo => {
+              const isActive = grupoActivo === grupo
+              return (
+                <button
+                  key={grupo}
+                  onClick={() => {
+                    setGrupoActivo(grupo)
+                    const element = document.getElementById(`grupo-${grupo}`)
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }
+                  }}
+                  className={`
+                    px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors
+                    ${isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                    }
+                  `}
+                >
+                  <span className="capitalize">{grupo}</span>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ejercicios agrupados por músculo con anchors */}
       {gruposOrdenados.map(grupoMuscular => (
-        <div key={grupoMuscular} className="space-y-3">
+        <div
+          key={grupoMuscular}
+          id={`grupo-${grupoMuscular}`}
+          className="space-y-3 scroll-mt-20"
+        >
           {/* Título del grupo muscular */}
           <div className="px-2">
             <h3 className="text-sm font-semibold capitalize text-primary">
