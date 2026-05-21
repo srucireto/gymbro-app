@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useRutinaActiva, useSemanaActual } from '@/hooks/useSupabase'
 import { generarCalendario, DIAS_PARTIDO, DIAS_FUTSAL_ENTRENO } from '@/lib/scheduler'
 import CalendarioSemanal from '@/components/CalendarioSemanal'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import MessageDialog from '@/components/MessageDialog'
-import type { DiaSemana } from '@/types'
+import type { DiaSemana, SemanaProgramada } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +17,7 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { rutina, sesiones, loading: loadingRutina } = useRutinaActiva()
   const { semana, setSemana, loading: loadingSemana } = useSemanaActual()
+  const [todasLasSemanas, setTodasLasSemanas] = useState<SemanaProgramada[]>([])
   const [mostrarSelector, setMostrarSelector] = useState(false)
   const [paso, setPaso] = useState<1 | 2>(1)
   const [diaPartidoSeleccionado, setDiaPartidoSeleccionado] = useState<DiaSemana | null>(null)
@@ -38,6 +39,25 @@ export default function HomePage() {
   }>({ open: false, title: '', message: '', variant: 'default' })
 
   const loading = loadingRutina || loadingSemana
+
+  // Obtener todas las semanas del mesociclo para calcular progreso total
+  useEffect(() => {
+    async function fetchTodasLasSemanas() {
+      if (!rutina) return
+
+      const { data } = await supabase
+        .from('semanas')
+        .select('*')
+        .eq('rutina_id', rutina.id)
+        .order('semana_numero')
+
+      if (data) {
+        setTodasLasSemanas(data)
+      }
+    }
+
+    fetchTodasLasSemanas()
+  }, [rutina])
 
   const handleSeleccionarDiaPartido = (dia: DiaSemana) => {
     setDiaPartidoSeleccionado(dia)
@@ -243,9 +263,9 @@ export default function HomePage() {
   const calendario = semana?.calendario || generarCalendario("viernes", diaFutsalDefault, sesiones)
   const semanaDelMesociclo = semana?.semana_numero || 1
 
-  // Calcular progreso basado en sesiones completadas
+  // Calcular progreso basado en TODAS las sesiones completadas del mesociclo
   const calcularProgreso = () => {
-    if (!semana || !rutina) return 0
+    if (!semana || !rutina || todasLasSemanas.length === 0) return 0
 
     const calendarioObj = semana.calendario as Record<DiaSemana, any>
 
@@ -257,11 +277,14 @@ export default function HomePage() {
     // Total de sesiones en el mesociclo completo
     const totalSesiones = sesionesGymPorSemana * rutina.semanas_duracion
 
-    // Contar sesiones completadas en la semana actual
-    // En el futuro podrías sumar todas las semanas del mesociclo
-    const sesionesCompletadas = Object.values(calendarioObj).filter(
-      (entrada: any) => entrada.tipo === 'gym' && entrada.estado === 'completada'
-    ).length
+    // Contar sesiones completadas en TODAS las semanas del mesociclo
+    const sesionesCompletadas = todasLasSemanas.reduce((total, sem) => {
+      const cal = sem.calendario as Record<DiaSemana, any>
+      const completadasEnSemana = Object.values(cal).filter(
+        (entrada: any) => entrada.tipo === 'gym' && entrada.estado === 'completada'
+      ).length
+      return total + completadasEnSemana
+    }, 0)
 
     if (totalSesiones === 0) return 0
     return Math.round((sesionesCompletadas / totalSesiones) * 100)

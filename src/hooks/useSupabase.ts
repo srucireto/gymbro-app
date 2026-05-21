@@ -64,11 +64,33 @@ export function useSemanaActual() {
   useEffect(() => {
     async function fetchSemanaActual() {
       try {
+        // Primero obtener el usuario autenticado
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setLoading(false)
+          return
+        }
+
+        // Obtener la rutina activa del usuario
+        const { data: rutinaData } = await supabase
+          .from('rutinas')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('activa', true)
+          .maybeSingle()
+
+        if (!rutinaData) {
+          setLoading(false)
+          return
+        }
+
+        // Ahora buscar la semana actual de ESA rutina
         const hoy = new Date().toISOString().split('T')[0]
-        
+
         const { data, error } = await supabase
           .from('semanas')
           .select('*')
+          .eq('rutina_id', rutinaData.id)
           .lte('fecha_inicio', hoy)
           .order('fecha_inicio', { ascending: false })
           .limit(1)
