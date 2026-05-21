@@ -244,8 +244,8 @@ export default function StatsProgreso() {
             <CardContent>
               {/* Gráfico de línea de tendencia con scroll */}
               <div className="space-y-3">
-                {/* Contenedor scrollable */}
-                <div className="overflow-x-auto pb-2">
+                {/* Contenedor scrollable - solo horizontal */}
+                <div className="overflow-x-auto overflow-y-hidden pb-2">
                   <div
                     className="relative h-40 bg-muted/10 rounded-lg p-4"
                     style={{ minWidth: `${Math.max(ultimosDatos.length * 60, 320)}px` }}
