@@ -59,7 +59,6 @@ export default function StatsProgreso() {
         }
 
         const ejercicio = ejerciciosMap.get(key)!
-        const semanaKey = `${t.semana.semana_numero}-${t.semana.fecha_inicio}`
 
         let datoSemana = ejercicio.datosProgreso.find(
           d => d.semanaNumero === t.semana.semana_numero && d.fechaInicio === t.semana.fecha_inicio
