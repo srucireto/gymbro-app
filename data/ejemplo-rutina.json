@@ -1,0 +1,397 @@
+{
+  "nombre": "PPL - Push Pull Legs",
+  "fecha_inicio": "2024-01-01",
+  "semanas_duracion": 6,
+  "sesiones": [
+    {
+      "nombre": "Push A",
+      "tipo": "push",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 1,
+      "ejercicios": [
+        {
+          "nombre": "Press Banca",
+          "grupo_muscular": "pecho",
+          "series": 4,
+          "reps_target": "6-8",
+          "rir_target": 2,
+          "notas": "Ejercicio principal de empuje horizontal",
+          "nota_ajuste": "Si no llegas a 6 reps, reduce peso 5-10%",
+          "youtube_search": "press banca técnica",
+          "orden": 1
+        },
+        {
+          "nombre": "Press Militar",
+          "grupo_muscular": "hombros",
+          "series": 3,
+          "reps_target": "8-10",
+          "rir_target": 2,
+          "notas": "Empuje vertical principal",
+          "nota_ajuste": null,
+          "youtube_search": "press militar hombros",
+          "orden": 2
+        },
+        {
+          "nombre": "Press Inclinado Mancuernas",
+          "grupo_muscular": "pecho",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Foco en pecho superior",
+          "nota_ajuste": null,
+          "youtube_search": "press inclinado mancuernas",
+          "orden": 3
+        },
+        {
+          "nombre": "Elevaciones Laterales",
+          "grupo_muscular": "hombros",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Deltoides lateral",
+          "nota_ajuste": null,
+          "youtube_search": "elevaciones laterales deltoides",
+          "orden": 4
+        },
+        {
+          "nombre": "Extensiones Tríceps Polea",
+          "grupo_muscular": "triceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Aislamiento de tríceps",
+          "nota_ajuste": null,
+          "youtube_search": "extensiones triceps polea",
+          "orden": 5
+        }
+      ]
+    },
+    {
+      "nombre": "Pull A",
+      "tipo": "pull",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 2,
+      "ejercicios": [
+        {
+          "nombre": "Dominadas",
+          "grupo_muscular": "espalda",
+          "series": 4,
+          "reps_target": "6-10",
+          "rir_target": 2,
+          "notas": "Ejercicio principal de tirón vertical",
+          "nota_ajuste": "Si no llegas a 6, usa banda elástica",
+          "youtube_search": "dominadas técnica",
+          "orden": 1
+        },
+        {
+          "nombre": "Remo con Barra",
+          "grupo_muscular": "espalda",
+          "series": 4,
+          "reps_target": "8-10",
+          "rir_target": 2,
+          "notas": "Tirón horizontal principal",
+          "nota_ajuste": null,
+          "youtube_search": "remo barra espalda",
+          "orden": 2
+        },
+        {
+          "nombre": "Face Pulls",
+          "grupo_muscular": "hombros",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": 1,
+          "notas": "Deltoides posterior y salud de hombros",
+          "nota_ajuste": null,
+          "youtube_search": "face pulls hombros",
+          "orden": 3
+        },
+        {
+          "nombre": "Curl Bíceps con Barra",
+          "grupo_muscular": "biceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 1,
+          "notas": "Aislamiento de bíceps",
+          "nota_ajuste": null,
+          "youtube_search": "curl biceps barra",
+          "orden": 4
+        },
+        {
+          "nombre": "Curl Martillo",
+          "grupo_muscular": "biceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Braquial y bíceps",
+          "nota_ajuste": null,
+          "youtube_search": "curl martillo mancuernas",
+          "orden": 5
+        }
+      ]
+    },
+    {
+      "nombre": "Pull B",
+      "tipo": "pull",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 3,
+      "ejercicios": [
+        {
+          "nombre": "Peso Muerto",
+          "grupo_muscular": "espalda",
+          "series": 4,
+          "reps_target": "6-8",
+          "rir_target": 2,
+          "notas": "Ejercicio compuesto principal",
+          "nota_ajuste": null,
+          "youtube_search": "peso muerto técnica",
+          "orden": 1
+        },
+        {
+          "nombre": "Remo con Mancuernas",
+          "grupo_muscular": "espalda",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Trabajo unilateral de espalda",
+          "nota_ajuste": null,
+          "youtube_search": "remo mancuernas",
+          "orden": 2
+        },
+        {
+          "nombre": "Jalón al Pecho",
+          "grupo_muscular": "espalda",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Alternativa a dominadas",
+          "nota_ajuste": null,
+          "youtube_search": "jalon pecho espalda",
+          "orden": 3
+        },
+        {
+          "nombre": "Curl Inclinado",
+          "grupo_muscular": "biceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Bíceps con estiramiento",
+          "nota_ajuste": null,
+          "youtube_search": "curl inclinado biceps",
+          "orden": 4
+        },
+        {
+          "nombre": "Encogimientos de Hombros",
+          "grupo_muscular": "trapecio",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": 1,
+          "notas": "Trapecio superior",
+          "nota_ajuste": null,
+          "youtube_search": "encogimientos hombros trapecio",
+          "orden": 5
+        }
+      ]
+    },
+    {
+      "nombre": "Push B",
+      "tipo": "push",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 4,
+      "ejercicios": [
+        {
+          "nombre": "Press Inclinado con Barra",
+          "grupo_muscular": "pecho",
+          "series": 4,
+          "reps_target": "8-10",
+          "rir_target": 2,
+          "notas": "Pecho superior como principal",
+          "nota_ajuste": null,
+          "youtube_search": "press inclinado barra",
+          "orden": 1
+        },
+        {
+          "nombre": "Fondos en Paralelas",
+          "grupo_muscular": "pecho",
+          "series": 3,
+          "reps_target": "8-12",
+          "rir_target": 2,
+          "notas": "Pecho inferior y tríceps",
+          "nota_ajuste": "Inclinarse hacia adelante para enfocar pecho",
+          "youtube_search": "fondos paralelas pecho",
+          "orden": 2
+        },
+        {
+          "nombre": "Press Arnold",
+          "grupo_muscular": "hombros",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Hombros - variación de press",
+          "nota_ajuste": null,
+          "youtube_search": "press arnold hombros",
+          "orden": 3
+        },
+        {
+          "nombre": "Aperturas con Mancuernas",
+          "grupo_muscular": "pecho",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Estiramiento del pecho",
+          "nota_ajuste": null,
+          "youtube_search": "aperturas mancuernas pecho",
+          "orden": 4
+        },
+        {
+          "nombre": "Press Francés",
+          "grupo_muscular": "triceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 1,
+          "notas": "Cabeza larga del tríceps",
+          "nota_ajuste": null,
+          "youtube_search": "press frances triceps",
+          "orden": 5
+        }
+      ]
+    },
+    {
+      "nombre": "Legs A",
+      "tipo": "legs",
+      "intensidad": "pesada",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 5,
+      "ejercicios": [
+        {
+          "nombre": "Sentadilla con Barra",
+          "grupo_muscular": "cuadriceps",
+          "series": 4,
+          "reps_target": "6-8",
+          "rir_target": 2,
+          "notas": "Ejercicio principal de piernas",
+          "nota_ajuste": "Si no llegas a 6 reps, reduce peso 5-10%",
+          "youtube_search": "sentadilla barra técnica",
+          "orden": 1
+        },
+        {
+          "nombre": "Peso Muerto Rumano",
+          "grupo_muscular": "isquios",
+          "series": 4,
+          "reps_target": "8-10",
+          "rir_target": 2,
+          "notas": "Enfoque en isquiotibiales y glúteos",
+          "nota_ajuste": null,
+          "youtube_search": "peso muerto rumano",
+          "orden": 2
+        },
+        {
+          "nombre": "Prensa de Piernas",
+          "grupo_muscular": "cuadriceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Trabajo de cuádriceps con volumen",
+          "nota_ajuste": null,
+          "youtube_search": "prensa piernas",
+          "orden": 3
+        },
+        {
+          "nombre": "Curl Femoral",
+          "grupo_muscular": "isquios",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Aislamiento de isquiotibiales",
+          "nota_ajuste": null,
+          "youtube_search": "curl femoral",
+          "orden": 4
+        },
+        {
+          "nombre": "Elevaciones de Gemelos",
+          "grupo_muscular": "gemelos",
+          "series": 4,
+          "reps_target": "15-20",
+          "rir_target": 1,
+          "notas": "Gemelos requieren alto volumen",
+          "nota_ajuste": null,
+          "youtube_search": "elevaciones gemelos",
+          "orden": 5
+        }
+      ]
+    },
+    {
+      "nombre": "Legs B",
+      "tipo": "legs",
+      "intensidad": "liviana",
+      "buffer_minimo_horas": 48,
+      "es_post_partido": false,
+      "orden": 6,
+      "ejercicios": [
+        {
+          "nombre": "Sentadilla Búlgara",
+          "grupo_muscular": "cuadriceps",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Trabajo unilateral, cuádriceps y glúteos",
+          "nota_ajuste": null,
+          "youtube_search": "sentadilla búlgara",
+          "orden": 1
+        },
+        {
+          "nombre": "Peso Muerto con Mancuernas",
+          "grupo_muscular": "isquios",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Variante con mancuernas para isquios",
+          "nota_ajuste": null,
+          "youtube_search": "peso muerto mancuernas",
+          "orden": 2
+        },
+        {
+          "nombre": "Extensiones de Cuádriceps",
+          "grupo_muscular": "cuadriceps",
+          "series": 3,
+          "reps_target": "12-15",
+          "rir_target": 1,
+          "notas": "Aislamiento de cuádriceps",
+          "nota_ajuste": null,
+          "youtube_search": "extensiones cuadriceps",
+          "orden": 3
+        },
+        {
+          "nombre": "Hip Thrust",
+          "grupo_muscular": "gluteos",
+          "series": 3,
+          "reps_target": "10-12",
+          "rir_target": 2,
+          "notas": "Enfoque en glúteos",
+          "nota_ajuste": null,
+          "youtube_search": "hip thrust",
+          "orden": 4
+        },
+        {
+          "nombre": "Gemelos Sentado",
+          "grupo_muscular": "gemelos",
+          "series": 3,
+          "reps_target": "15-20",
+          "rir_target": 1,
+          "notas": "Gemelos - músculo soleo",
+          "nota_ajuste": null,
+          "youtube_search": "gemelos sentado",
+          "orden": 5
+        }
+      ]
+    }
+  ]
+}
