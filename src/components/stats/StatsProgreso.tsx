@@ -83,13 +83,13 @@ export default function StatsProgreso() {
 
         // Buscar o crear dato de semana
         let datoSemana = ejercicio.datosProgreso.find(
-          d => d.semanaNumero === t.semana.semana_numero && d.fechaInicio === t.semana.fecha_inicio
+          d => d.semanaNumero === t.semana!.semana_numero && d.fechaInicio === t.semana!.fecha_inicio
         )
 
         if (!datoSemana) {
           datoSemana = {
-            semanaNumero: t.semana.semana_numero,
-            fechaInicio: t.semana.fecha_inicio,
+            semanaNumero: t.semana!.semana_numero,
+            fechaInicio: t.semana!.fecha_inicio,
             pesoPromedio: 0,
             repsPromedio: 0,
             volumenTotal: 0,

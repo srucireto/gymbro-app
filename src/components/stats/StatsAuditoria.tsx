@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, TrendingUp, TrendingDown, Minus, CheckCircle, XCircle } from 'lucide-react'
 import { validateAndFilterTracking, normalizarGrupoMuscular, type TrackingRow } from '@/lib/stats-validation'
-import { analizarAsistencia, type SemanaCalendario, type DiaAnalizado } from '@/lib/stats-ausencias'
+import { analizarAsistencia, type SemanaCalendario } from '@/lib/stats-ausencias'
 import {
   generarReporteMusculo,
   imprimirReporte,

@@ -82,9 +82,6 @@ export function analizarAsistencia(
       } else if (entrada.estado === 'faltada' || entrada.fecha_faltada) {
         estado = 'faltada'
         razon_falta = 'ausencia_marcada'
-      } else if (entrada.estado === 'illness') {
-        estado = 'faltada'
-        razon_falta = 'enfermedad'
       } else if (entrada.tipo === 'gym' && trackingDia.length === 0) {
         // Día programado pero sin datos de tracking
         estado = 'sin_datos'
@@ -201,11 +198,6 @@ export function analizarImpactoAusencias(
   adherencia: number
   semanasMayorAusencia: number[]
 } {
-  // Filtrar tracking de este grupo muscular
-  const trackingGrupo = trackingData.filter(
-    t => t.ejercicio?.grupo_muscular.toLowerCase().includes(grupoMuscular.toLowerCase())
-  )
-
   // Agrupar días por estado
   const diasProgramados = diasAnalizados.length
   const diasCompletados = diasAnalizados.filter(d => d.estado === 'completada').length

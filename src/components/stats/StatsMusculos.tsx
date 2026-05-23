@@ -62,7 +62,7 @@ export default function StatsMusculos() {
       if (error) throw error
 
       // ✅ VALIDACIÓN: Filtrar datos inválidos (NULL, relaciones rotas)
-      const { validRows, warnings, invalidCount } = validateAndFilterTracking(
+      const { validRows, invalidCount } = validateAndFilterTracking(
         (trackingData || []) as TrackingRow[],
         { logWarnings: true }
       )

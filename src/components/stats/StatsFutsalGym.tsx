@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Activity, AlertTriangle, CheckCircle, TrendingDown } from 'lucide-react'
 import { validateAndFilterTracking, type TrackingRow } from '@/lib/stats-validation'
-import { analizarAsistencia, type SemanaCalendario, type DiaAnalizado } from '@/lib/stats-ausencias'
+import { analizarAsistencia, type SemanaCalendario } from '@/lib/stats-ausencias'
 import {
   analizarInterferenciaFutsalGym,
   type AnalisisInterferencia

@@ -5,7 +5,7 @@
 
 import type { TrackingRow } from './stats-validation'
 import type { SemanaCalendario, DiaAnalizado } from './stats-ausencias'
-import type { DiaSemana, EntradaCalendario } from '@/types'
+import type { DiaSemana } from '@/types'
 
 export interface EventoFutsal {
   fecha: string
@@ -76,13 +76,12 @@ export function extraerEventosFutsal(semanas: SemanaCalendario[]): EventoFutsal[
       const entrada = semana.calendario[dia]
       if (!entrada) return
 
-      if (entrada.tipo === 'futsal') {
+      if (entrada.tipo === 'partido' || entrada.tipo === 'futsal_entreno') {
         const fechaDia = new Date(fechaInicio)
         fechaDia.setDate(fechaDia.getDate() + index)
 
         // Determinar si es partido o entrenamiento
-        // Asumimos: si está en el día configurado como "dia_partido", es partido
-        const esPartido = dia === semana.dia_partido
+        const esPartido = entrada.tipo === 'partido'
 
         eventos.push({
           fecha: fechaDia.toISOString().split('T')[0],
