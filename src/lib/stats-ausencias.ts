@@ -188,8 +188,7 @@ export function calcularAdherencia(dias: DiaAnalizado[]): {
  */
 export function analizarImpactoAusencias(
   grupoMuscular: string,
-  diasAnalizados: DiaAnalizado[],
-  trackingData: TrackingRow[]
+  diasAnalizados: DiaAnalizado[]
 ): {
   grupoMuscular: string
   diasProgramados: number
