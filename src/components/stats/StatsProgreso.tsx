@@ -2,18 +2,30 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import {
+  validateAndFilterTracking,
+  calcularVolumenSeguro,
+  normalizarGrupoMuscular,
+  type TrackingRow
+} from '@/lib/stats-validation'
+
+interface DatoSemana {
+  semanaNumero: number
+  fechaInicio: string
+  pesoPromedio: number
+  repsPromedio: number
+  volumenTotal: number
+  // ✅ Acumuladores internos para cálculo correcto
+  _sumatoriaPeso?: number
+  _sumatoriaReps?: number
+  _contadorSeries?: number
+}
 
 interface EjercicioProgreso {
   ejercicioId: string
   ejercicioNombre: string
   grupoMuscular: string
-  datosProgreso: {
-    semanaNumero: number
-    fechaInicio: string
-    pesoPromedio: number
-    repsPromedio: number
-    volumenTotal: number
-  }[]
+  datosProgreso: DatoSemana[]
 }
 
 export default function StatsProgreso() {
@@ -42,9 +54,19 @@ export default function StatsProgreso() {
 
       if (error) throw error
 
+      // ✅ VALIDACIÓN: Filtrar datos inválidos
+      const { validRows, invalidCount } = validateAndFilterTracking(
+        (trackingData || []) as TrackingRow[],
+        { logWarnings: true }
+      )
+
+      if (invalidCount > 0) {
+        console.warn(`⚠️ StatsProgreso: ${invalidCount} filas excluidas por datos inválidos`)
+      }
+
       const ejerciciosMap = new Map<string, EjercicioProgreso>()
 
-      trackingData?.forEach((t: any) => {
+      validRows.forEach((t) => {
         if (!t.ejercicio || !t.semana) return
 
         const key = t.ejercicio.id
@@ -59,6 +81,7 @@ export default function StatsProgreso() {
 
         const ejercicio = ejerciciosMap.get(key)!
 
+        // Buscar o crear dato de semana
         let datoSemana = ejercicio.datosProgreso.find(
           d => d.semanaNumero === t.semana.semana_numero && d.fechaInicio === t.semana.fecha_inicio
         )
@@ -69,23 +92,41 @@ export default function StatsProgreso() {
             fechaInicio: t.semana.fecha_inicio,
             pesoPromedio: 0,
             repsPromedio: 0,
-            volumenTotal: 0
+            volumenTotal: 0,
+            // Acumuladores para cálculo correcto
+            _sumatoriaPeso: 0,
+            _sumatoriaReps: 0,
+            _contadorSeries: 0
           }
           ejercicio.datosProgreso.push(datoSemana)
         }
 
-        const count = ejercicio.datosProgreso.filter(
-          d => d.semanaNumero === t.semana.semana_numero
-        ).length
+        // ✅ CÁLCULO CORRECTO: Acumular primero, promediar después
+        if (t.peso !== null && t.peso !== undefined) {
+          datoSemana._sumatoriaPeso! += Number(t.peso)
+          datoSemana._contadorSeries! += 1
+        }
 
-        datoSemana.pesoPromedio = ((datoSemana.pesoPromedio * (count - 1)) + Number(t.peso)) / count
-        datoSemana.repsPromedio = ((datoSemana.repsPromedio * (count - 1)) + t.reps) / count
-        datoSemana.volumenTotal += Number(t.peso) * t.reps
+        datoSemana._sumatoriaReps! += t.reps
+        datoSemana.volumenTotal += calcularVolumenSeguro(t.peso, t.reps)
       })
 
+      // ✅ CALCULAR PROMEDIOS AL FINAL (no incrementalmente)
       const ejerciciosList = Array.from(ejerciciosMap.values()).map(ej => ({
         ...ej,
-        datosProgreso: ej.datosProgreso.sort((a, b) => a.semanaNumero - b.semanaNumero)
+        datosProgreso: ej.datosProgreso
+          .map(d => ({
+            semanaNumero: d.semanaNumero,
+            fechaInicio: d.fechaInicio,
+            pesoPromedio: d._contadorSeries! > 0
+              ? d._sumatoriaPeso! / d._contadorSeries!
+              : 0,
+            repsPromedio: d._contadorSeries! > 0
+              ? d._sumatoriaReps! / d._contadorSeries!
+              : 0,
+            volumenTotal: d.volumenTotal
+          }))
+          .sort((a, b) => a.semanaNumero - b.semanaNumero)
       }))
 
       setEjercicios(ejerciciosList)
@@ -110,20 +151,7 @@ export default function StatsProgreso() {
     }
   }
 
-  function normalizarGrupo(grupo: string): string {
-    const grupoLower = grupo.toLowerCase()
-    if (grupoLower.includes('hombro')) return 'hombros'
-    if (grupoLower.includes('espalda')) return 'espalda'
-    if (grupoLower.includes('pecho')) return 'pecho'
-    if (grupoLower.includes('bíceps') || grupoLower.includes('biceps')) return 'bíceps'
-    if (grupoLower.includes('tríceps') || grupoLower.includes('triceps')) return 'tríceps'
-    if (grupoLower.includes('trapecio')) return 'trapecio'
-    if (grupoLower.includes('cuádriceps') || grupoLower.includes('cuadriceps')) return 'cuádriceps'
-    if (grupoLower.includes('isquio')) return 'isquiotibiales'
-    if (grupoLower.includes('gemelo')) return 'gemelos'
-    if (grupoLower.includes('glúteo') || grupoLower.includes('gluteo')) return 'glúteos'
-    return grupo.toLowerCase()
-  }
+  // Función movida a stats-validation.ts
 
   if (loading) {
     return (
@@ -159,7 +187,7 @@ export default function StatsProgreso() {
 
   // Agrupar ejercicios por grupo muscular normalizado
   const ejerciciosPorGrupo = ejercicios.reduce((acc, ej) => {
-    const grupo = normalizarGrupo(ej.grupoMuscular)
+    const grupo = normalizarGrupoMuscular(ej.grupoMuscular)
     if (!acc[grupo]) {
       acc[grupo] = []
     }

@@ -3,6 +3,12 @@ import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Activity, AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  validateAndFilterTracking,
+  calcularVolumenSeguro,
+  normalizarGrupoMuscular,
+  type TrackingRow
+} from '@/lib/stats-validation'
 
 interface VolumenMuscular {
   grupoMuscular: string
@@ -21,22 +27,7 @@ export default function StatsMusculos() {
     fetchVolumenes()
   }, [])
 
-  function normalizarGrupo(grupo: string): string {
-    const grupoLower = grupo.toLowerCase()
-    if (grupoLower.includes('hombro')) return 'hombros'
-    if (grupoLower.includes('espalda')) return 'espalda'
-    if (grupoLower.includes('pecho')) return 'pecho'
-    if (grupoLower.includes('bíceps') || grupoLower.includes('biceps')) return 'bíceps'
-    if (grupoLower.includes('tríceps') || grupoLower.includes('triceps')) return 'tríceps'
-    if (grupoLower.includes('trapecio')) return 'trapecio'
-    if (grupoLower.includes('cuádriceps') || grupoLower.includes('cuadriceps')) return 'cuádriceps'
-    if (grupoLower.includes('isquio')) return 'isquiotibiales'
-    if (grupoLower.includes('gemelo')) return 'gemelos'
-    if (grupoLower.includes('glúteo') || grupoLower.includes('gluteo')) return 'glúteos'
-    if (grupoLower.includes('abdomen') || grupoLower.includes('core')) return 'core'
-    if (grupoLower.includes('antebrazo')) return 'antebrazos'
-    return grupo.toLowerCase()
-  }
+  // Función movida a stats-validation.ts
 
   async function fetchVolumenes() {
     try {
@@ -62,19 +53,31 @@ export default function StatsMusculos() {
         .from('tracking')
         .select(`
           *,
-          ejercicio:ejercicios(nombre, grupo_muscular, series)
+          ejercicio:ejercicios(nombre, grupo_muscular, series),
+          semana:semanas(semana_numero, fecha_inicio)
         `)
         .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
 
       if (error) throw error
+
+      // ✅ VALIDACIÓN: Filtrar datos inválidos (NULL, relaciones rotas)
+      const { validRows, warnings, invalidCount } = validateAndFilterTracking(
+        (trackingData || []) as TrackingRow[],
+        { logWarnings: true }
+      )
+
+      if (invalidCount > 0) {
+        console.warn(`⚠️ StatsMusculos: ${invalidCount} filas de tracking excluidas por datos inválidos`)
+      }
 
       // Agrupar por grupo muscular NORMALIZADO
       const musculosMap = new Map<string, VolumenMuscular>()
 
-      trackingData?.forEach((t: any) => {
+      validRows.forEach((t) => {
         if (!t.ejercicio) return
 
-        const grupoNormalizado = normalizarGrupo(t.ejercicio.grupo_muscular)
+        const grupoNormalizado = normalizarGrupoMuscular(t.ejercicio.grupo_muscular)
 
         if (!musculosMap.has(grupoNormalizado)) {
           musculosMap.set(grupoNormalizado, {
@@ -89,7 +92,9 @@ export default function StatsMusculos() {
         const musculo = musculosMap.get(grupoNormalizado)!
         musculo.series += 1
         musculo.repeticiones += t.reps
-        musculo.volumenTotal += Number(t.peso) * t.reps
+
+        // ✅ CÁLCULO SEGURO: Maneja NULL correctamente
+        musculo.volumenTotal += calcularVolumenSeguro(t.peso, t.reps)
 
         // Agregar ejercicio si no está ya
         if (!musculo.ejercicios.includes(t.ejercicio.nombre)) {
